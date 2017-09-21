@@ -12,16 +12,13 @@ window.onload = function init()
 
     // Three Vertices
 
-    var vertices1 = [
-        vec2( -1, -1 ),
-        vec2(  0,  1 ),
-        vec2(  1, -1 )
-    ];
-
-    var vertices2 = [
-        vec2( -0.25, -0.5 ),
-        vec2(  0.5,  0.5 ),
-        vec2(  0.75, -0.5 )
+    var vertices = [
+        vec2( -1, 1 ),
+        vec2(  -1,  -1 ),
+        vec2(  1, -1 ),
+        vec2(  1, -1),
+        vec2(  -1, 1),
+        vec2(  1, 1),
     ];
 
     //
@@ -43,22 +40,22 @@ window.onload = function init()
 
     var bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices1), gl.STATIC_DRAW);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
 
     // Now render
 
-    gl.enableVertexAttribArray(vPositionLoc);  // activate vertex array for vPosition
+    gl.enableVertexAttribArray(vPositionLoc);  // activate vertex array for vPositionLoc
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);  // select buffer to be used
+    //    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId); // select buffer to be used
+    // The previous line is not necessary because the correct buffer is already selected
+
     gl.vertexAttribPointer(vPositionLoc, 2, gl.FLOAT, false, 0, 0);  // define data format
 
-    gl.clear( gl.COLOR_BUFFER_BIT );
-    gl.drawArrays( gl.TRIANGLES, 0, 3 );
-
-    // Load new data in buffer (defined by the last bind)
-
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices2), gl.STATIC_DRAW );
-
-    gl.drawArrays( gl.TRIANGLES, 0, 3 );
-
+    render();
 };
+
+
+function render() {
+    gl.clear( gl.COLOR_BUFFER_BIT );
+    gl.drawArrays( gl.TRIANGLES, 0, 6 );
+}
