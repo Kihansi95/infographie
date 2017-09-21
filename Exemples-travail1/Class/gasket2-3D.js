@@ -34,9 +34,9 @@ window.onload = function init()
 
 	var vertices = [
       vec3(  0.0000,  0.0000, -1.0000 ),
-      vec3(  0.0000,  0.9428,  0.3333 ),  
+      vec3(  0.0000,  0.9428,  0.3333 ),
       vec3( -0.8165, -0.4714,  0.3333 ),
-      vec3(  0.8165, -0.4714,  0.3333 )    
+      vec3(  0.8165, -0.4714,  0.3333 )
 
       ];
 
@@ -113,16 +113,16 @@ function divideTriangle( a, b, c, count )
 function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-	
+
     gl.uniform4fv(colorLoc, flatten(BaseColors[4]));
     gl.drawArrays( gl.TRIANGLES, 0, points.length/4 );
 
     gl.uniform4fv(colorLoc, flatten(BaseColors[1]));
     gl.drawArrays( gl.TRIANGLES, points.length/4, points.length/4 );
-	
+
     gl.uniform4fv(colorLoc, flatten(BaseColors[0]));
     gl.drawArrays( gl.TRIANGLES, 2*points.length/4, points.length/4 );
-	
+
 	gl.uniform4fv(colorLoc, flatten(BaseColors[3]));
     gl.drawArrays( gl.TRIANGLES, 3*points.length/4, points.length/4 );
 }
