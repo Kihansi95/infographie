@@ -5,6 +5,8 @@
 attribute  vec4 vPosition;
 attribute  vec4 vColor;
 varying vec4 fColor;
+uniform vec4 vScale;
+uniform vec4 vDisplacement;
 
 uniform mat4 matricemodelisation;
 
@@ -17,7 +19,7 @@ void main()
     //            (columns are stored one after another)
 
 
-    tmp_position = matricemodelisation * vPosition;
+    tmp_position = matricemodelisation * ( vScale * vPosition + vDisplacement);
 
     // Now we need to invert the Z coordinates since Web
     // browsers map the clip coordinates to the NDC (normalized

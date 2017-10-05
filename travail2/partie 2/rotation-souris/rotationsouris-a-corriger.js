@@ -24,6 +24,8 @@ var anglex = 0;
 var angley = 0;
 
 var matricemodelisation = mat4(0,0,0,0);
+var mScaleLoc;
+var vDisplacementLoc;
 
 function matricesRotation(theta) {
 
@@ -34,6 +36,15 @@ function matricesRotation(theta) {
       ),
       rotate(theta[2], 0, 0, 1)
     );
+}
+
+function scaleMat4(x, y, z) {
+  return mat4 (
+    x,x,x,1,
+    y,y,y,1,
+    z,z,z,1,
+    1,1,1,1
+  );
 }
 
 function doMouseDown(evt) {
@@ -118,6 +129,8 @@ window.onload = function init()
     gl.enableVertexAttribArray( vPosition );
 
     matricemodelisationLoc = gl.getUniformLocation(program, "matricemodelisation");
+    mScaleLoc = gl.getUniformLocation(program, "mScale");
+    vDisplacementLoc = gl.getUniformLocation(program, "vDisplacement");
 
     //event listeners for buttons
 
@@ -198,11 +211,37 @@ function render()
 
     theta[0] -= anglex/10.0;
     theta[1] += angley/10.0;
-    matricemodelisation = matricesRotation(theta);
 
+    matricemodelisation = matricesRotation(theta);
     gl.uniformMatrix4fv(matricemodelisationLoc, false, flatten(matricemodelisation));
 
+    var scales = [
+      scaleMat4( 0.2, 0.2, 0.2 ), scaleMat4( 0.2, 0.1, 0.2 ), scaleMat4( 0.2, 0.2, 0.2 ),
+      scaleMat4( 0.1, 0.2, 0.2 ), scaleMat4( 0.2, 0.2, 0.2 ),
+      scaleMat4( 0.2, 0.2, 0.2),  scaleMat4( 0.2, 0.1, 0.2 ), scaleMat4( 0.2, 0.2, 0.2 )
+    ];
+    var displacements = [
+      vec4( -1, 0, -1, 0), vec4( 0, 0, -1, 0),  vec4( 1, 0, -1, 0),
+      vec4( -1, 0, 0, 0),  vec4( 1, 0 ,0, 0),
+      vec4( -1, 0, 1, 0),  vec4( 0, 0, 1, 0),   vec4( 1, 0, 1, 0)
+    ];
+    for(i = 0; i < 8; i++) {
+      gl.uniformMatrix4fv(mScaleLoc, false, flatten(scales[i]));
+      gl.uniform4fv(vDisplacementLoc, flatten(displacements[i]));
+      gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+    }
+/*
+    var scale =         [ 0.1, 0.1, 0.1, 0 ];
+    var displacement =  [ 0.12, 0, 0, 0 ];
+    gl.uniform4fv(vScaleLoc, scale);
+    gl.uniform4fv(vDisplacementLoc, displacement);
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
+    var scale2 =         [ 0.05, 0.05, 0.1, 0 ];
+    var displacement2 =  [ 0, 0, 0.3, 0 ];
+    gl.uniform4fv(vScaleLoc, scale2);
+    gl.uniform4fv(vDisplacementLoc, displacement2);
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+*/
 //    requestAnimFrame( render );
 }
