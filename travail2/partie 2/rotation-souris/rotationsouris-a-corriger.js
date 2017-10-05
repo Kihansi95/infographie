@@ -16,6 +16,10 @@ var zAxis = 2;
 var axis = 0;
 var theta = [ 0, 0, 0 ];
 
+<<<<<<< HEAD
+=======
+var thetaLoc;
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 var vColorLoc;
 
 var prevx, prevy;
@@ -23,6 +27,7 @@ var dragging = false;
 var anglex = 0;
 var angley = 0;
 
+<<<<<<< HEAD
 var matricemodelisation = mat4(0,0,0,0);
 var mScaleLoc;
 var vDisplacementLoc;
@@ -47,6 +52,8 @@ function scaleMat4(x, y, z) {
   );
 }
 
+=======
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 function doMouseDown(evt) {
     if (dragging)
         return;
@@ -64,8 +71,13 @@ function doMouseDrag(evt) {
     var x = evt.clientX - box.left;
     var y = canvas.height - (evt.clientY - box.top);
 
+<<<<<<< HEAD
     anglex = y - prevy;
     angley = x - prevx;
+=======
+    anglex += y - prevy;
+    angley += x - prevx;
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 
     display.innerHTML = "<div> anglex = " + anglex + " ***** angley = " + angley +" </div>";
 
@@ -128,9 +140,13 @@ window.onload = function init()
     gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
+<<<<<<< HEAD
     matricemodelisationLoc = gl.getUniformLocation(program, "matricemodelisation");
     mScaleLoc = gl.getUniformLocation(program, "mScale");
     vDisplacementLoc = gl.getUniformLocation(program, "vDisplacement");
+=======
+    thetaLoc = gl.getUniformLocation(program, "theta");
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 
     //event listeners for buttons
 
@@ -209,6 +225,7 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+<<<<<<< HEAD
     theta[0] -= anglex/10.0;
     theta[1] += angley/10.0;
 
@@ -243,5 +260,14 @@ function render()
     gl.uniform4fv(vDisplacementLoc, displacement2);
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 */
+=======
+    theta[0] += anglex/10.0;
+    theta[1] += angley/10.0;
+
+    gl.uniform3fv(thetaLoc, theta);
+
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 //    requestAnimFrame( render );
 }
