@@ -16,6 +16,10 @@ var zAxis = 2;
 var axis = 0;
 var theta = [ 0, 0, 0 ];
 
+<<<<<<< HEAD
+=======
+var thetaLoc;
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 var vColorLoc;
 
 var prevx, prevy;
@@ -23,7 +27,10 @@ var dragging = false;
 var anglex = 0;
 var angley = 0;
 
+<<<<<<< HEAD
 var matricemodelisation = mat4(0,0,0,0);
+var mScaleLoc;
+var vDisplacementLoc;
 
 function matricesRotation(theta) {
 
@@ -36,6 +43,17 @@ function matricesRotation(theta) {
     );
 }
 
+function scaleMat4(x, y, z) {
+  return mat4 (
+    x,x,x,1,
+    y,y,y,1,
+    z,z,z,1,
+    1,1,1,1
+  );
+}
+
+=======
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 function doMouseDown(evt) {
     if (dragging)
         return;
@@ -53,8 +71,13 @@ function doMouseDrag(evt) {
     var x = evt.clientX - box.left;
     var y = canvas.height - (evt.clientY - box.top);
 
+<<<<<<< HEAD
     anglex = y - prevy;
     angley = x - prevx;
+=======
+    anglex += y - prevy;
+    angley += x - prevx;
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 
     display.innerHTML = "<div> anglex = " + anglex + " ***** angley = " + angley +" </div>";
 
@@ -117,7 +140,13 @@ window.onload = function init()
     gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
+<<<<<<< HEAD
     matricemodelisationLoc = gl.getUniformLocation(program, "matricemodelisation");
+    mScaleLoc = gl.getUniformLocation(program, "mScale");
+    vDisplacementLoc = gl.getUniformLocation(program, "vDisplacement");
+=======
+    thetaLoc = gl.getUniformLocation(program, "theta");
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 
     //event listeners for buttons
 
@@ -196,13 +225,49 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+<<<<<<< HEAD
     theta[0] -= anglex/10.0;
     theta[1] += angley/10.0;
-    matricemodelisation = matricesRotation(theta);
 
+    matricemodelisation = matricesRotation(theta);
     gl.uniformMatrix4fv(matricemodelisationLoc, false, flatten(matricemodelisation));
+
+    var scales = [
+      scaleMat4( 0.2, 0.2, 0.2 ), scaleMat4( 0.2, 0.1, 0.2 ), scaleMat4( 0.2, 0.2, 0.2 ),
+      scaleMat4( 0.1, 0.2, 0.2 ), scaleMat4( 0.2, 0.2, 0.2 ),
+      scaleMat4( 0.2, 0.2, 0.2),  scaleMat4( 0.2, 0.1, 0.2 ), scaleMat4( 0.2, 0.2, 0.2 )
+    ];
+    var displacements = [
+      vec4( -1, 0, -1, 0), vec4( 0, 0, -1, 0),  vec4( 1, 0, -1, 0),
+      vec4( -1, 0, 0, 0),  vec4( 1, 0 ,0, 0),
+      vec4( -1, 0, 1, 0),  vec4( 0, 0, 1, 0),   vec4( 1, 0, 1, 0)
+    ];
+    for(i = 0; i < 8; i++) {
+      gl.uniformMatrix4fv(mScaleLoc, false, flatten(scales[i]));
+      gl.uniform4fv(vDisplacementLoc, flatten(displacements[i]));
+      gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+    }
+/*
+    var scale =         [ 0.1, 0.1, 0.1, 0 ];
+    var displacement =  [ 0.12, 0, 0, 0 ];
+    gl.uniform4fv(vScaleLoc, scale);
+    gl.uniform4fv(vDisplacementLoc, displacement);
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+
+    var scale2 =         [ 0.05, 0.05, 0.1, 0 ];
+    var displacement2 =  [ 0, 0, 0.3, 0 ];
+    gl.uniform4fv(vScaleLoc, scale2);
+    gl.uniform4fv(vDisplacementLoc, displacement2);
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+*/
+=======
+    theta[0] += anglex/10.0;
+    theta[1] += angley/10.0;
+
+    gl.uniform3fv(thetaLoc, theta);
 
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
+>>>>>>> e6703a185918b85a21aa8ea655a6bb293769eedd
 //    requestAnimFrame( render );
 }
