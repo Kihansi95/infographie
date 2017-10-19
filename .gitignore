@@ -5,6 +5,11 @@
 
 .idea
 
+#local machine
+*/**/*.zip.gpg
+*/**/*.zip
+PortablePGP-1.0.7
+
 # User-specific stuff:
 .idea/**/workspace.xml
 .idea/**/tasks.xml

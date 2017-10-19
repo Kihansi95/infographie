@@ -1,0 +1,70 @@
+<html>
+<head>
+    <script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute  vec4 vPosition;
+attribute  vec4 vColor;
+varying vec4 fColor;
+uniform mat4 mScale;
+uniform mat4 mDisplacement;
+
+uniform mat4 matricemodelisation;
+
+void main()
+{
+
+    vec4 tmp_position;
+
+    tmp_position = matricemodelisation * vPosition ;
+
+    // Now we need to invert the Z coordinates since Web
+    // browsers map the clip coordinates to the NDC (normalized
+    // device coordinates) expecting the Z axis to be inverted
+    // (as do perspective projection matrices).
+
+    tmp_position.z = -tmp_position.z;
+
+    fColor = vColor;
+    gl_Position = tmp_position;
+}
+
+    </script>
+
+    <script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+varying vec4 fColor;
+
+void
+main()
+{
+    gl_FragColor = fColor;
+}
+
+    </script>
+
+    <script type="text/javascript" src="./Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="./Common/initShaders.js"></script>
+    <script type="text/javascript" src="./Common/MV.js"></script>
+    <script type="text/javascript" src="rotationsouris-a-corriger.js"></script>
+
+</head>
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+    Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+<br>
+
+<div id="display">
+    ***
+</div>
+<br>
+
+<button id="ShadedButton">Shaded color</button>
+<button id="SolidButton">Solid color</button>
+
+
+</body>
+</html>
