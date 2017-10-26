@@ -88,12 +88,13 @@ function render() {
     modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
     cylinder.render();
     pos.y = pos.y + config.cylinder.height*0.5*config.scaling;  // update pos: to the end of cylinder
-
++
     // draw the 2nd sphere in other extremity
     drawSphere(initialmodelview, pos, {x:0,y:1,z:0});
 
 
     // draw the cylindrer
+    /*
     pos.x = pos.x - config.sphere.radius*0.4*config.scaling;    // ajust the joint
     pos.x = pos.x + config.cylinder.height*0.5*config.scaling;  // update pos: to the middle of cylinder
     modelview = initialmodelview;
@@ -103,7 +104,8 @@ function render() {
     modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
     cylinder.render();
     pos.x = pos.x + config.cylinder.height*0.5*config.scaling;  // update pos: to the end of cylinder
-
+    */
+    drawCylinder(initialmodelview , pos, {x:1,y:0,z:0}, true)
 }
 
 /**
@@ -132,6 +134,45 @@ function drawSphere(initialmodelview , pos, direction) {
     modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
     sphere.render();
 
+}
+
+/**
+ * Draw the sphere from the position relative of the last cylinder.
+ * @param initialmodelview: initialmodelview
+ * @param pos: position of the last cylinder
+ * @param direction {x,y,z}: the direction of the cylinder in order to ajust sphere
+ * direction.xyz = +- 1
+ * @param afterSphere boolean
+ */
+function drawCylinder(initialmodelview , pos, direction, afterSphere) {
+    var axe = direction.x != 0 ? 'x' : direction.y != 0 ? 'y' : 'z'; // determine the axe
+    var sign = direction[axe];
+
+    if(afterSphere) {   // ajust the joint
+        pos[axe] -= sign * config.sphere.radius * 0.4 * config.scaling;
+    }
+
+    // update pos: to the middle of cylinder
+    pos[axe] += sign * config.cylinder.height*0.5*config.scaling;
+
+    //renderrrrrr
+    modelview = initialmodelview;
+    modelview = mult(modelview, translate(pos.x, pos.y, pos.z));
+
+    // make xor 2 vector
+    var rot = {
+        x: direction.x ? 0 : 1,
+        y: direction.y ? 0 : 1,
+        z: !direction.z ? 0 : 1
+    };
+
+    modelview = mult(modelview, rotate(90.0, rot.x, rot.y, rot.z)); // unity vector must be positive to avoid problems
+    normalMatrix = extractNormalMatrix(modelview);  // always extract the normal matrix before scaling
+    modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
+    cylinder.render();
+
+    // update pos: to the end of cylinder
+    pos[axe] += sign * config.cylinder.height*0.5*config.scaling;
 }
 
 function unflatten(matrix) {
