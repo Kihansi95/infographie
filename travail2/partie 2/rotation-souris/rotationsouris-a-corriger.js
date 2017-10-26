@@ -216,10 +216,9 @@ function render()
         var scaling = scalings[i];
         var translation = translates[i];
 
-        matricemodelisation = mat4();
+        matricemodelisation = scaling;
         matricemodelisation = mult( matricemodelisation , rotation);
         matricemodelisation = mult( matricemodelisation , translation );
-        matricemodelisation = mult( matricemodelisation, scaling);
 
         gl.uniformMatrix4fv(matricemodelisationLoc, false, flatten(matricemodelisation));
         gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
