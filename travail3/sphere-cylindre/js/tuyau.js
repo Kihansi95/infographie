@@ -26,7 +26,17 @@ var normalMatrix = mat3();  //--- create a 3X3 matrix that will affect normals
 
 var rotator;   // A SimpleRotator object to enable rotation by mouse dragging.
 
-var sphere;  // model identifiers
+var sphere, cylinder;  // model identifiers
+
+// config of model in order to render correctly
+var config = {
+    sphere: {
+      radius: 5, slices: 25.0, stacks: 25.0
+    },
+    cylinder: {
+      radius: 4.0, height: 25.0, slices: 25.0
+    }
+}
 
 var prog;  // shader program identifier
 
@@ -43,7 +53,6 @@ var materialShininess = 100.0;
 
 var ambientProduct, diffuseProduct, specularProduct;
 
-
 function render() {
     gl.clearColor(0.79, 0.76, 0.27, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -57,16 +66,24 @@ function render() {
 
     var initialmodelview = modelview;
 
+    var pos = {x:0.0, y:0.0, z:0.0};
+
     //  now, draw sphere model
     modelview = initialmodelview;
-    modelview = mult(modelview, translate(1.0, 0.0, 0.0));
+    modelview = mult(modelview, translate(pos.x, pos.y, pos.z));
     modelview = mult(modelview, rotate(0.0, 1, 0, 0));
     normalMatrix = extractNormalMatrix(modelview);  // always extract the normal matrix before scaling
     modelview = mult(modelview, scale(0.5, 0.5, 0.5));
     sphere.render();
+
+    // draw the cylindrer
+    modelview = initialmodelview;
+    modelview = mult(modelview, translate(pos.x, pos.y + config., pos.z));
+    modelview = mult(modelview, rotate(90.0, 1, 0, 0));
+    normalMatrix = extractNormalMatrix(modelview);  // always extract the normal matrix before scaling
+    modelview = mult(modelview, scale(0.5, 0.5, 0.5));
+    cylinder.render();
 }
-
-
 
 function unflatten(matrix) {
     var result = mat4();
@@ -258,7 +275,10 @@ window.onload = function init() {
 		gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));  // send projection matrix to the shader program
 
 		// initialize the sphere model
-    sphere = createModel(uvSphere(10.0, 25.0, 25.0));
+    //sphere = createModel(uvSphere(10.0, 25.0, 25.0));
+    //cylinder = createModel(uvCylinder(10.0, 20.0, 25.0, false, false));
+    sphere = createModel(uvSphere(config.sphere.radius, config.sphere.slices, config.sphere.stacks));
+    cylinder = createModel(uvCylinder(config.cylinder.radius, config.cylinder.height, config.cylinder.slices, true, true));
 
     }
     catch (e) {
