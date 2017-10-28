@@ -31,17 +31,17 @@ var sphere, cylinder;  // model identifiers
 // config of model in order to render correctly
 var config = {
     sphere: {
-      radius: 5, slices: 25.0, stacks: 25.0
+      radius: 1, slices: 25.0, stacks: 25.0
     },
     cylinder: {
-      radius: 3.0, height: 25.0, slices: 25.0
+      radius: 0.5, height: 5, slices: 25.0
     },
     scaling : 0.5
 };
 
 var ENUM_DIRECTION = [
     {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1},
-    {x: -1, y: 0, z: 0}, {x: 0, y: -1, z: 1}, {x: 1, y: 0, z: -1}
+    {x: -1, y: 0, z: 0}, {x: 0, y: -1, z: 0}, {x: 0, y: 0, z: -1}
 ];
 
 var prog;  // shader program identifier
@@ -61,6 +61,47 @@ var ambientProduct, diffuseProduct, specularProduct;
 
 var last_direction = null;
 
+var tuyau = {
+    directions: [],
+
+    pushCylinder: function() {
+
+        var tmp;
+        var last = this.directions.length > 0 ? this.directions[this.directions.length - 1] : false;
+        do {
+            tmp = ENUM_DIRECTION [Math.floor(Math.random()*10)%6];
+        } while (last && ((last.x*tmp.x === -1) || (last.y*tmp.y === -1) || (last.z*tmp.z === -1)));
+
+        this.directions.push(tmp);
+    },
+
+    render: function(initialmodelview) {
+        var pos = {x:0.0, y:0.0, z:0.0};
+
+        modelview = initialmodelview;
+        modelview = mult(modelview, translate(pos.x, pos.y, pos.z));
+        modelview = mult(modelview, rotate(0.0, 1, 0, 0));
+        normalMatrix = extractNormalMatrix(modelview);
+        modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
+        sphere.render();
+
+
+        var last_direction = false;
+        this.directions.forEach(function(direction) {
+
+            if(last_direction && (direction.x !== last_direction.x || direction.y !== last_direction.y || direction.z !== last_direction.z)) {
+                drawSphere(initialmodelview, pos, last_direction);
+            }
+            drawCylinder(initialmodelview , pos, direction, true);
+            last_direction = direction;
+        });
+
+    }
+};
+
+var TUYAU_MAX = 100;
+var cnt = 0;
+
 function render() {
     gl.clearColor(0.79, 0.76, 0.27, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -76,34 +117,17 @@ function render() {
 
     var pos = {x:0.0, y:0.0, z:0.0};
 
-    //  now, draw sphere model
-
     modelview = initialmodelview;
     modelview = mult(modelview, translate(pos.x, pos.y, pos.z));
     modelview = mult(modelview, rotate(0.0, 1, 0, 0));
     normalMatrix = extractNormalMatrix(modelview);
     modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
     sphere.render();
-    pos.y = pos.y + config.sphere.radius*config.scaling;        // update pos: to the end of sphere
-
-    var direction = getDirection();
-    if(last_direction && direction.x === last_direction.x && direction.y === last_direction.y && direction.z === last_direction.z) {
-        drawSphere(initialmodelview, pos, last_direction);
-    }
-    drawCylinder(initialmodelview , pos, direction, true);
-    last_direction = direction;
+    //pos.y = pos.y + config.sphere.radius*config.scaling;        // update pos: to the end of sphere
 
 
-    /*
-    // draw the cylindrer
-    drawCylinder(initialmodelview , pos, {x:0,y:1,z:0}, true);
+    tuyau.render(initialmodelview);
 
-    // draw the 2nd sphere in other extremity
-    drawSphere(initialmodelview, pos, {x:0,y:1,z:0});
-
-    // draw the cylindrer
-    drawCylinder(initialmodelview , pos, {x:1,y:0,z:0}, true);
-    */
 }
 
 /**
@@ -134,6 +158,7 @@ function drawSphere(initialmodelview , pos, direction) {
 
     // ajust the joint
     pos[axe] -= sign * config.sphere.radius * 0.4 * config.scaling;
+
 
     // update pos: to the middle of cylinder
     pos[axe] += sign * config.sphere.radius * config.scaling;
@@ -173,12 +198,13 @@ function drawCylinder(initialmodelview , pos, direction, afterSphere) {
 
     // make xor 2 vector
     var rot = {
+        angle : direction.z ? 0 : 90.0,
         x: direction.x ? 0 : 1,
         y: direction.y ? 0 : 1,
-        z: !direction.z ? 0 : 1
+        z: direction.z ? 0 : 0
     };
 
-    modelview = mult(modelview, rotate(90.0, rot.x, rot.y, rot.z)); // unity vector must be positive to avoid problems
+    modelview = mult(modelview, rotate(rot.angle, rot.x, rot.y, rot.z)); // unity vector must be positive to avoid problems
     normalMatrix = extractNormalMatrix(modelview);  // always extract the normal matrix before scaling
     modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
     cylinder.render();
@@ -282,7 +308,7 @@ function createModel(modelData) {
         gl.uniformMatrix3fv(NormalMatrixLoc, false, flatten(normalMatrix));  //--- load flattened normal matrix
 
         gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
-        console.log(this.count);
+        //console.log(this.count);
     }
     return model;
 }
@@ -388,6 +414,13 @@ window.onload = function init() {
              "Could not initialize WebGL: " + e;
         return;
     }
+
+    var tuyau_auto = setInterval(function() {
+        tuyau.pushCylinder();
+        cnt ++;
+        if(cnt >= TUYAU_MAX)
+            clearInterval(tuyau_auto);
+    }, 400);
 
     setInterval(render, 1000);
 }
