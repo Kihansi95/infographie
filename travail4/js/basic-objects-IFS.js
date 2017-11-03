@@ -1480,17 +1480,17 @@ function uvTetrahedron(side) {
         for(i = 0; i < 3; i++) {
             normals.push(nrm[0],nrm[1],nrm[2]);
         }
-        texCoords.push(0,0,1,0,1,1,0,1);
-        indices.push(start,start+1,start+2,start,start+2);
+        texCoords.push(0,0,1,0,1,1);
+        indices.push(start,start+1,start+2);
     }
 
     var sq3 = Math.sqrt(3);
     var sq6 = Math.sqrt(6);
 
-    face([-s/2, 0, -sq3*s/6,    1/2, 0, -sq3*s/6,   0, 0, 12*sq3*s/3     ], [0,-1,0]); //A C B
-    face([0, 0, sq3*s/3,        0, sq6*s/3, 0,      -s/2, 0, -sq3*s/6 ], [-1, 1, 1]); //B D A
-    face([0, 0, sq3*s/3,        s/2, 0, -s*sq3/6,   0, sq6*s/3, 0     ], [1, 1, 1]); //B C D
-    face([s/2, 0, -s*sq3/6,     -s/2, 0, -sq3*s/6,  0, sq6*s/3, 0     ], [1, 1,-1]); //C A D
+    face([-s/2, 0, -sq3*s/6,    s/2, 0, -sq3*s/6,   0, 0, sq3*s/3     ], [0,-1,0]);    //A C B
+    face([0, 0, sq3*s/3,        s/2, 0, -s*sq3/6,   0, sq6*s/3, 0     ], [1, 1, 1]);   //B C D
+    face([0, 0, sq3*s/3,        0, sq6*s/3, 0,      -s/2, 0, -sq3*s/6 ], [-1, 1, 1]);  //B D A
+    face([s/2, 0, -s*sq3/6,     -s/2, 0, -s*sq3/6,   0, sq6*s/3, 0     ], [0, 1, -1]);  //C A D
 
     return {
        vertexPositions: new Float32Array(coords),

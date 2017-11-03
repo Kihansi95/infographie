@@ -71,9 +71,9 @@ function render() {
 
     modelview = initialmodelview;
     modelview = mult(modelview, translate(pos.x, pos.y, pos.z));
-    modelview = mult(modelview, rotate(90.0, 0, 1, 0));
+    modelview = mult(modelview, rotate(0.0, 1, 0, 0));
     normalMatrix = extractNormalMatrix(modelview);  // always extract the normal matrix before scaling
-    modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
+    modelview = mult(modelview, scale(1, 1, 1));
     tetra.render();
 
 
