@@ -26,19 +26,6 @@ var normalMatrix = mat3();  //--- create a 3X3 matrix that will affect normals
 
 var rotator;   // A SimpleRotator object to enable rotation by mouse dragging.
 
-var sphere, cylinder, cube, tetra;  // model identifiers
-
-// config of model in order to render correctly
-var config = {
-    sphere: {
-      radius: 5, slices: 25.0, stacks: 25.0
-    },
-    cylinder: {
-      radius: 4.0, height: 25.0, slices: 25.0
-    },
-    scaling : 0.5
-}
-
 var prog;  // shader program identifier
 
 var lightPosition = vec4(20.0, 20.0, 100.0, 1.0);
@@ -53,98 +40,6 @@ var materialSpecular = vec4(0.48, 0.55, 0.69, 1.0);
 var materialShininess = 100.0;
 
 var ambientProduct, diffuseProduct, specularProduct;
-
-function render() {
-    gl.clearColor(0.79, 0.76, 0.27, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    //--- Get the rotation matrix obtained by the displacement of the mouse
-    //---  (note: the matrix obtained is already "flattened" by the function getViewMatrix)
-    flattenedmodelview = rotator.getViewMatrix();
-    modelview = unflatten(flattenedmodelview);
-
-	  normalMatrix = extractNormalMatrix(modelview);
-
-    var initialmodelview = modelview;
-
-    var pos = {x:0.0, y:0.0, z:0.0};
-
-    modelview = initialmodelview;
-    modelview = mult(modelview, translate(pos.x, pos.y, pos.z));
-    modelview = mult(modelview, rotate(0.0, 1, 0, 0));
-    normalMatrix = extractNormalMatrix(modelview);  // always extract the normal matrix before scaling
-    modelview = mult(modelview, scale(1, 1, 1));
-    tetra.render();
-
-
-}
-
-/**
- * Draw the sphere from the position relative of the last cylinder.
- * @param initialmodelview: initialmodelview
- * @param pos: position of the last cylinder
- * @param direction {x,y,z}: the direction of the cylinder in order to ajust sphere
- * direction.xyz = +- 1
- */
-function drawSphere(initialmodelview , pos, direction) {
-
-    var axe = direction.x != 0 ? 'x' : direction.y != 0 ? 'y' : 'z'; // determine the axe
-    var sign = direction[axe];
-
-    // ajust the joint
-    pos[axe] -= sign * config.sphere.radius * 0.4 * config.scaling;
-
-    // update pos: to the middle of cylinder
-    pos[axe] += sign * config.sphere.radius * config.scaling;
-
-    // renderrrrrr
-    modelview = initialmodelview;
-    modelview = mult(modelview, translate(pos.x, pos.y, pos.z));
-    modelview = mult(modelview, rotate(90.0, Math.abs(direction.x), Math.abs(direction.y), Math.abs(direction.z))); // unity vector must be positive to avoid problems
-    normalMatrix = extractNormalMatrix(modelview);
-    modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
-    sphere.render();
-
-}
-
-/**
- * Draw the sphere from the position relative of the last cylinder.
- * @param initialmodelview: initialmodelview
- * @param pos: position of the last cylinder
- * @param direction {x,y,z}: the direction of the cylinder in order to ajust sphere
- * direction.xyz = +- 1
- * @param afterSphere boolean
- */
-function drawCylinder(initialmodelview , pos, direction, afterSphere) {
-    var axe = direction.x != 0 ? 'x' : direction.y != 0 ? 'y' : 'z'; // determine the axe
-    var sign = direction[axe];
-
-    if(afterSphere) {   // ajust the joint
-        pos[axe] -= sign * config.sphere.radius * 0.4 * config.scaling;
-    }
-
-    // update pos: to the middle of cylinder
-    pos[axe] += sign * config.cylinder.height*0.5*config.scaling;
-
-    //renderrrrrr
-    modelview = initialmodelview;
-    modelview = mult(modelview, translate(pos.x, pos.y, pos.z));
-
-    // make xor 2 vector
-    var rot = {
-        x: direction.x ? 0 : 1,
-        y: direction.y ? 0 : 1,
-        z: !direction.z ? 0 : 1
-    };
-
-    modelview = mult(modelview, rotate(90.0, rot.x, rot.y, rot.z)); // unity vector must be positive to avoid problems
-    normalMatrix = extractNormalMatrix(modelview);  // always extract the normal matrix before scaling
-    modelview = mult(modelview, scale(config.scaling, config.scaling, config.scaling));
-    cylinder.render();
-
-    // update pos: to the end of cylinder
-    pos[axe] += sign * config.cylinder.height*0.5*config.scaling;
-}
 
 function unflatten(matrix) {
     var result = mat4();
@@ -206,46 +101,6 @@ function matrixinvert(matrix) {
     return result;
 }
 
-function createModel(modelData) {
-    var model = {};
-    model.coordsBuffer = gl.createBuffer();
-    model.normalBuffer = gl.createBuffer();
-    model.textureBuffer = gl.createBuffer();
-    model.indexBuffer = gl.createBuffer();
-    model.count = modelData.indices.length;
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, model.coordsBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexPositions, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexNormals, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, model.textureBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexTextureCoords, gl.STATIC_DRAW);
-
-    console.log(modelData.vertexPositions.length);
-    console.log(modelData.indices.length);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, modelData.indices, gl.STATIC_DRAW);
-
-    model.render = function () {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.coordsBuffer);
-        gl.vertexAttribPointer(CoordsLoc, 3, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
-        gl.vertexAttribPointer(NormalLoc, 3, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-        gl.vertexAttribPointer(TexCoordLoc, 2, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-
-        gl.uniformMatrix4fv(ModelviewLoc, false, flatten(modelview));    //--- load flattened modelview matrix
-        gl.uniformMatrix3fv(NormalMatrixLoc, false, flatten(normalMatrix));  //--- load flattened normal matrix
-
-        gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
-        console.log(this.count);
-    }
-    return model;
-}
-
 function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
     var vsh = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vsh, vertexShaderSource);
@@ -281,6 +136,26 @@ function getTextContent(elementID) {
     }
     return str;
 }
+
+function traverse(Id) {
+
+    if(Id == null) return;
+    stack.push(modelview);
+    console.log(Id,':', figure[Id].transform);
+    modelview = mult(modelview, figure[Id].transform);
+    figure[Id].render();
+    if(figure[Id].child != null) traverse(figure[Id].child);
+    modelview = stack.pop();
+    if(figure[Id].sibling != null) traverse(figure[Id].sibling);
+}
+
+var render = function() {
+    flattenedmodelview = rotator.getViewMatrix();
+    modelview = unflatten(flattenedmodelview);
+
+    gl.clear( gl.COLOR_BUFFER_BIT );
+    traverse(spacecraft.leftWing.id);
+};
 
 window.onload = function init() {
     try {
@@ -335,16 +210,14 @@ window.onload = function init() {
 		projection = perspective(70.0, 1.0, 1.0, 200.0);
 		gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));  // send projection matrix to the shader program
 
-		// initialize the sphere model
-    //sphere = createModel(uvSphere(10.0, 25.0, 25.0));
-    //cylinder = createModel(uvCylinder(10.0, 20.0, 25.0, false, false));
-    sphere = createModel(uvSphere(config.sphere.radius, config.sphere.slices, config.sphere.stacks));
-    cylinder = createModel(uvCylinder(config.cylinder.radius, config.cylinder.height, config.cylinder.slices, true, true));
-    cube = createModel(cube(12));
-    tetra = createModel(uvTetrahedron(12));
+		// initialize the model
+        initModel();
+
+        // build the spacecraft
+        buildSpacecraft()
     }
     catch (e) {
-      console.log(e);
+        console.log(e);
         document.getElementById("message").innerHTML =
             "Could not initialize WebGL: " + e;
         return;
