@@ -22,26 +22,68 @@ var stack = [];
 
 var figure = [];
 
-var spacecraft = {
-    leftWing : {
-        id: 0, width: 3.0, height: 1.0, depth: 6.0,
+var component = {
+    main_wing : {
+        attribute: {
+            x:5, y:10, z:25
+        },
+
         render: function() {
 
-            modelview = mult(modelview, translate(0, 0, 0));
-            modelview = mult(modelview, rotate(0.0, 1, 0, 0));
+            modelview = mult(modelview, rotate(90.0, 0, 0, 1));
             normalMatrix = extractNormalMatrix(modelview);
-            modelview = mult(modelview, scale4(10, 10, 10));
-            sphere.render();
+            modelview = mult(modelview, scale4(5, 10, 25));
+            squareTetra.render();
+
+            // remise
+            modelview = mult(modelview, scale4(1/5, 1/10, 1/25));
+            modelview = mult(modelview, rotate(-90.0, 0, 0, 1));
         }
     },
-    rightWing : {
-        id: 1, width: 3.0, height: 1.0, depth: 6.0,
-        render: function() {
 
-            tetrahedron.render();
-        }
+    gun: {
+      render: function() {
+
+          normalMatrix = extractNormalMatrix(modelview);
+          modelview = mult(modelview, translate(-5, 1.3, 2));
+          modelview = mult(modelview, scale4(.5, .5, 2.3));
+          cylinder.render();
+
+          // remise
+          modelview = mult(modelview, scale4(2, 2, 1/2.3));
+      }
+    },
+
+    muzzle: {
+      render: function() {
+
+          normalMatrix = extractNormalMatrix(modelview);
+          modelview = mult(modelview, translate(-5, 1.3, 2));
+          modelview = mult(modelview, scale4(1, 1, 1));
+          cylinder.render();
+
+      }
+    },
+
+    control_center: {
+       render: function() {
+
+            modelview = mult(modelview, rotate(-3.0, 1, 0, 0));
+            modelview = mult(modelview, translate(0, 0, -1));
+            normalMatrix = extractNormalMatrix(modelview);
+            modelview = mult(modelview, scale4(9,9,14));
+            cone.render();                      // TODO: make another form, a cone that is cut on the top
+       }
     }
 };
+
+var spacecraft = {
+  controlCenter: 0,
+  leftWing: 1,
+  rightWing: 2,
+  gun: 3,
+  muzzle: 4
+}
 
 for( var i=0; i<Object.keys(spacecraft).length; i++) figure[i] = createNode(null, null, null, null);
 
@@ -86,56 +128,34 @@ function createNode(transform, render, sibling, child){
 function initNodes(Id) {
 
     var m = mat4();
-    
+
     switch(Id) {
 
-        case spacecraft.leftWing.id:
-            var leftWing = spacecraft.leftWing;
-            m = mat4();
-
-            figure[leftWing.id] = createNode(m, leftWing.render, null, null);
+        case spacecraft.controlCenter:
+            figure[spacecraft.controlCenter] = createNode(m, component.control_center.render, spacecraft.leftWing, null);
             break;
 
-        case spacecraft.rightWing.id:
-            var rightWing = spacecraft.rightWing;
-            m = mat4();
-            m = mult(m, rotate(90.0,1,0,0));
-            figure[rightWing.id] = createNode(m, rightWing.render, null, null);
-            break;
-    
-        case rightLowerLegId:
+        case spacecraft.leftWing:
 
-            m = translate(0.0, upperLegHeight, 0.0);
-            m = mult(m, rotate(theta[rightLowerLegId], 1, 0, 0));
-            figure[rightLowerLegId] = createNode( m, rightLowerLeg, null, null );
+            figure[spacecraft.leftWing] = createNode(m, component.main_wing.render, spacecraft.rightWing, spacecraft.gun);
             break;
-    
+
+        case spacecraft.gun:
+            figure[spacecraft.gun] = createNode(m, component.gun.render, null, spacecraft.muzzle);
+            break;
+
+        case spacecraft.muzzle:
+            figure[spacecraft.muzzle] = createNode(m, component.muzzle.render, null, null);
+            break;
+
+        case spacecraft.rightWing:
+
+            m = mult(m, scale4(-1, 1, 1)); // make mirror by y-axis from left wing
+            figure[spacecraft.rightWing] = createNode(m, component.main_wing.render, null, spacecraft.gun);
+            break;
+
     }
 
-}
-
-function torso() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5*torsoHeight, 0.0) );
-    instanceMatrix = mult(instanceMatrix, scale4( torsoWidth, torsoHeight, torsoWidth));
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
-}
-
-function head() {
-   
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, 0.0 ));
-	instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
-}
-
-function rightLowerLeg() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function buildSpacecraft() {

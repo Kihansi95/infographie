@@ -1499,3 +1499,45 @@ function uvTetrahedron(side) {
        indices: new Uint16Array(indices)
     }
 }
+
+/**
+ * Create a model of a tetrahedron. The tetrahedron havs one face in plan (xz)
+ * and a vertex in the positive y-axis. The center of the face (xz) will be
+ * in the center O (O, O, O)
+ * @param width
+ * @param height
+ * @param depth
+ */
+function uvSquareTetrahedron(width, height, depth) {
+    var w = (width || 1)/2;
+    var h = height || 1;
+    var d = depth || 1;
+    var coords = [];
+    var normals = []
+    var texCoords = [];
+    var indices = [];
+    function face(xyz, nrm){
+        var start = coords.length/3;
+        var i;
+        for(i = 0; i < 9; i++)  {
+            coords.push(xyz[i]);
+        }
+        for(i = 0; i < 3; i++) {
+            normals.push(nrm[0],nrm[1],nrm[2]);
+        }
+        texCoords.push(0,0,1,0,1,1);
+        indices.push(start,start+1,start+2);
+    }
+
+    face([-w, 0, 0,    w,0,0,   0,0,d ], [0, -1, 0]);      // A B C
+    face([-w, 0, 0,    0,0,d,    0,h,0 ], [-1, 1, 1]);    // A C D
+    face([0,0,d,       w,0,0,   0,h,0 ], [1, 1, 1]);    // C B D
+    face([w,0,0,     -w, 0, 0,   0,h,0 ], [0, 0, -1]);    //B A D
+
+    return {
+       vertexPositions: new Float32Array(coords),
+       vertexNormals: new Float32Array(normals),
+       vertexTextureCoords: new Float32Array(texCoords),
+       indices: new Uint16Array(indices)
+    }
+}
