@@ -7,14 +7,19 @@ var config = {
     },
     tetrahedron: {
         side: 10
+    },
+    squareTetrahedron: {
+        l: 10, h: 10, d: 10
     }
 };
 
-var sphere, tetrahedron;
+var sphere, tetrahedron, square_tetra;
 
 function initModel() {
     sphere = createModel(uvSphere(1, config.sphere.slices, config.sphere.stacks));
     tetrahedron = createModel(uvTetrahedron(config.tetrahedron.side));
+    square_tetra = createModel(uvSquareTetrahedron(config.squareTetrahedron.l, config.squareTetrahedron.h, config.squareTetrahedron.d));
+
 }
 
 function createModel(modelData) {

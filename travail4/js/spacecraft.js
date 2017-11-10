@@ -30,8 +30,8 @@ var spacecraft = {
             modelview = mult(modelview, translate(0, 0, 0));
             modelview = mult(modelview, rotate(0.0, 1, 0, 0));
             normalMatrix = extractNormalMatrix(modelview);
-            modelview = mult(modelview, scale4(10, 10, 10));
-            sphere.render();
+            modelview = mult(modelview, scale4(1, 1, 1));
+            square_tetra.render();
         }
     },
     rightWing : {
@@ -92,14 +92,14 @@ function initNodes(Id) {
         case spacecraft.leftWing.id:
             var leftWing = spacecraft.leftWing;
             m = mat4();
-
+            //m = mult(m, rotate(90.0,1,0,0));
             figure[leftWing.id] = createNode(m, leftWing.render, null, null);
             break;
 
         case spacecraft.rightWing.id:
             var rightWing = spacecraft.rightWing;
             m = mat4();
-            m = mult(m, rotate(90.0,1,0,0));
+
             figure[rightWing.id] = createNode(m, rightWing.render, null, null);
             break;
     
@@ -112,30 +112,6 @@ function initNodes(Id) {
     
     }
 
-}
-
-function torso() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5*torsoHeight, 0.0) );
-    instanceMatrix = mult(instanceMatrix, scale4( torsoWidth, torsoHeight, torsoWidth));
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
-}
-
-function head() {
-   
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, 0.0 ));
-	instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth) );
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
-}
-
-function rightLowerLeg() {
-
-    instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0) );
-	instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth) )
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
-    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
 
 function buildSpacecraft() {

@@ -1460,7 +1460,7 @@ function uvQuartersphereInside(radius, slices, stacks) {
 }
 
 /**
- * Create a model of a tetrahedron. The tetrahedron havs one face in plan (xz)
+ * Create model of a tetrahedron. The tetrahedron havs one face in plan (xz)
  * and a vertex in the positive y-axis. The center of the face (xz) will be
  * in the center O (O, O, O)
  * @param side: the length of a side of the tetrahedron. If not given, the value will be 1.
@@ -1471,7 +1471,11 @@ function uvTetrahedron(side) {
     var normals = []
     var texCoords = [];
     var indices = [];
-    function face(xyz, nrm){
+
+    var sq3 = Math.sqrt(3);
+    var sq6 = Math.sqrt(6);
+
+    function face(xyz, nrm) {
         var start = coords.length/3;
         var i;
         for(i = 0; i < 9; i++)  {
@@ -1480,12 +1484,9 @@ function uvTetrahedron(side) {
         for(i = 0; i < 3; i++) {
             normals.push(nrm[0],nrm[1],nrm[2]);
         }
-        texCoords.push(0,0,1,0,1,1);
+        texCoords.push(0,0,1);
         indices.push(start,start+1,start+2);
     }
-
-    var sq3 = Math.sqrt(3);
-    var sq6 = Math.sqrt(6);
 
     face([-s/2, 0, -sq3*s/6,    s/2, 0, -sq3*s/6,   0, 0, sq3*s/3     ], [0,-1,0]);    //A C B
     face([0, 0, sq3*s/3,        s/2, 0, -s*sq3/6,   0, sq6*s/3, 0     ], [1, 1, 1]);   //B C D
@@ -1499,3 +1500,46 @@ function uvTetrahedron(side) {
        indices: new Uint16Array(indices)
     }
 }
+
+/**
+ * Create model of square tetrahedron.
+ * @param large
+ * @param height
+ * @param depth
+ */
+function uvSquareTetrahedron(large, height, depth) {
+    var l = (large || 1)/2;
+    var h = height || 1;
+    var d = depth || 1;
+
+    var coords = [];
+    var normals = [];
+    var texCoords = [];
+    var indices = [];
+
+    function face(xyz, nrm) {
+        var start = coords.length/3;
+        var i;
+        for(i = 0; i < 9; i++)  {
+            coords.push(xyz[i]);
+        }
+        for(i = 0; i < 3; i++) {
+            normals.push(nrm[0],nrm[1],nrm[2]);
+        }
+        texCoords.push(0,0,1,0,1,1,0,1);
+        indices.push(start,start+1,start+2);
+    }
+
+    //face([-l, 0, 0,    l, 0, 0,    0, 0, d], [0, -1, 0]); // A B C
+    face([-l, 0, 0,    0, 0, d,    0, 0, h], [-1, 1, 1]); // A C D
+    //face([0, 0, d,     l, 0, 0,    0, 0, h], [1, 1, 1]);  // C B D
+    //face([-l, 0, 0,    l, 0, 0,    0, 0, h], [0, 0, -1]); // A B D
+
+    return {
+        vertexPositions: new Float32Array(coords),
+        vertexNormals: new Float32Array(normals),
+        vertexTextureCoords: new Float32Array(texCoords),
+        indices: new Uint16Array(indices)
+    }
+}
+

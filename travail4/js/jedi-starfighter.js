@@ -141,7 +141,6 @@ function traverse(Id) {
 
     if(Id == null) return;
     stack.push(modelview);
-    console.log(Id,':', figure[Id].transform);
     modelview = mult(modelview, figure[Id].transform);
     figure[Id].render();
     if(figure[Id].child != null) traverse(figure[Id].child);
