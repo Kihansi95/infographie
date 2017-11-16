@@ -9,17 +9,21 @@ var config = {
         side: 10
     },
     squareTetrahedron: {
-        l: 10, h: 10, d: 10
+        w: 1, h: 1, d: 1
+    },
+    cone: {
+        radius: 1, height: 2, slices: 25.0
     }
 };
 
-var sphere, tetrahedron, square_tetra;
+var sphere, tetrahedron, squareTetra, cone, cylinder;
 
 function initModel() {
     sphere = createModel(uvSphere(1, config.sphere.slices, config.sphere.stacks));
     tetrahedron = createModel(uvTetrahedron(config.tetrahedron.side));
-    square_tetra = createModel(uvSquareTetrahedron(config.squareTetrahedron.l, config.squareTetrahedron.h, config.squareTetrahedron.d));
-
+    squareTetra = createModel(uvSquareTetrahedron(config.squareTetrahedron.w, config.squareTetrahedron.h, config.squareTetrahedron.d ));
+    cone = createModel(uvCone(config.cone.radius, config.cone.height, config.cone.slices, true));
+    cylinder = createModel(uvCylinder(1,1,25.0, false, false ));
 }
 
 function createModel(modelData) {

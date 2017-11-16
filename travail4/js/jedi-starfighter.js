@@ -153,7 +153,8 @@ var render = function() {
     modelview = unflatten(flattenedmodelview);
 
     gl.clear( gl.COLOR_BUFFER_BIT );
-    traverse(spacecraft.leftWing.id);
+    
+    traverse(spacecraft.gun);
 };
 
 window.onload = function init() {
