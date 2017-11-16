@@ -16,14 +16,25 @@ var config = {
     }
 };
 
-var sphere, tetrahedron, squareTetra, cone, cylinder;
+var sphere, tetrahedron, squareTetra, hemicone, cylinder, hemisphere,
+    m_cube, m_ring, pentagonprism, trapeziumprism, triangleprism;
 
 function initModel() {
     sphere = createModel(uvSphere(1, config.sphere.slices, config.sphere.stacks));
     tetrahedron = createModel(uvTetrahedron(config.tetrahedron.side));
     squareTetra = createModel(uvSquareTetrahedron(config.squareTetrahedron.w, config.squareTetrahedron.h, config.squareTetrahedron.d ));
-    cone = createModel(uvCone(config.cone.radius, config.cone.height, config.cone.slices, true));
+    hemicone = createModel(uvQuartersphereOutside(1, 25, 1));
     cylinder = createModel(uvCylinder(1,1,25.0, false, false ));
+    hemisphere = createModel(uvHemisphereOutside(1,32,16));
+
+    m_cube = createModel(cube(1));
+    m_ring = createModel(ring(0.25, 1, 8));
+
+    pentagonprism = createModel(uvPentagonPrism(true, 1, .65, 0.8, 0.4)); // right/left = 1/2, front/back = 3/4, left/back = 0.8
+
+    trapeziumprism = createModel(uvTrapeziumPrism(true, {a: .5, b: 1, c:0.5}, {a: 1, b: 3, c:1.2}, 3));
+
+    triangleprism = createModel(uvCylinder(1,1, 3, false, false ));
 }
 
 function createModel(modelData) {

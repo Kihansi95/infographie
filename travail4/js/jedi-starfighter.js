@@ -138,7 +138,6 @@ function getTextContent(elementID) {
 }
 
 function traverse(Id) {
-
     if(Id == null) return;
     stack.push(modelview);
     modelview = mult(modelview, figure[Id].transform);
@@ -154,7 +153,7 @@ var render = function() {
 
     gl.clear( gl.COLOR_BUFFER_BIT );
     
-    traverse(spacecraft.gun);
+    traverse(spacecraft.controlCenter);
 };
 
 window.onload = function init() {
@@ -223,5 +222,5 @@ window.onload = function init() {
         return;
     }
 
-    setInterval(render, 1000);
-}
+    render();
+};
