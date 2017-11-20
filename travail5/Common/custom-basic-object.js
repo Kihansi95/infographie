@@ -235,3 +235,121 @@ function uvTrianglePrism(largeSide, smallSide, height, angle) {
     face([ a, h, 0,     a, h, b,    a, 0, delta+b,    a, 0, delta],         [1, 0, 0]); // right
     face([-a, h, 0,     a, h, 0,    a, 0, delta,     -a, 0, delta], [0, 0, 1]); // front
 }
+
+function uvCylinderInside(radius, height, slices, noTop, noBottom) {
+    radius = radius || 0.5;
+    height = height || 2 * radius;
+    slices = slices || 32;
+    var vertexCount = 2 * (slices + 1);
+    if (!noTop)
+        vertexCount += slices + 2;
+    if (!noBottom)
+        vertexCount += slices + 2;
+    var triangleCount = 2 * slices;
+    if (!noTop)
+        triangleCount += slices;
+    if (!noBottom)
+        triangleCount += slices;
+    var vertices = new Float32Array(vertexCount * 3);
+    var normals = new Float32Array(vertexCount * 3);
+    var texCoords = new Float32Array(vertexCount * 2);
+    var indices = new Uint16Array(triangleCount * 3);
+    var du = 2 * Math.PI / slices;
+    var kv = 0;
+    var kt = 0;
+    var k = 0;
+    var i, u;
+    for (i = 0; i <= slices; i++) {
+        u = i * du;
+        var c = Math.cos(u);
+        var s = Math.sin(u);
+        vertices[kv] = c * radius;
+        normals[kv++] = -c;
+        vertices[kv] = s * radius;
+        normals[kv++] = -s;
+        vertices[kv] = -height / 2;
+        normals[kv++] = 0;
+        texCoords[kt++] = i / slices;
+        texCoords[kt++] = 0;
+        vertices[kv] = c * radius;
+        normals[kv++] = -c;
+        vertices[kv] = s * radius;
+        normals[kv++] = -s;
+        vertices[kv] = height / 2;
+        normals[kv++] = 0;
+        texCoords[kt++] = i / slices;
+        texCoords[kt++] = 1;
+    }
+    for (i = 0; i < slices; i++) {
+        indices[k++] = 2 * i;
+        indices[k++] = 2 * i + 3;
+        indices[k++] = 2 * i + 1;
+        indices[k++] = 2 * i;
+        indices[k++] = 2 * i + 2;
+        indices[k++] = 2 * i + 3;
+    }
+    var startIndex = kv / 3;
+    if (!noBottom) {
+        vertices[kv] = 0;
+        normals[kv++] = 0;
+        vertices[kv] = 0;
+        normals[kv++] = 0;
+        vertices[kv] = -height / 2;
+        normals[kv++] = 1;
+        texCoords[kt++] = 0.5;
+        texCoords[kt++] = 0.5;
+        for (i = 0; i <= slices; i++) {
+            u = 2 * Math.PI - i * du;
+            var c = Math.cos(u);
+            var s = Math.sin(u);
+            vertices[kv] = c * radius;
+            normals[kv++] = 0;
+            vertices[kv] = s * radius;
+            normals[kv++] = 0;
+            vertices[kv] = -height / 2;
+            normals[kv++] = 1;
+            texCoords[kt++] = 0.5 - 0.5 * c;
+            texCoords[kt++] = 0.5 + 0.5 * s;
+        }
+        for (i = 0; i < slices; i++) {
+            indices[k++] = startIndex;
+            indices[k++] = startIndex + i + 1;
+            indices[k++] = startIndex + i + 2;
+        }
+    }
+    var startIndex = kv / 3;
+    if (!noTop) {
+        vertices[kv] = 0;
+        normals[kv++] = 0;
+        vertices[kv] = 0;
+        normals[kv++] = 0;
+        vertices[kv] = height / 2;
+        normals[kv++] = -1;
+        texCoords[kt++] = 0.5;
+        texCoords[kt++] = 0.5;
+        for (i = 0; i <= slices; i++) {
+            u = i * du;
+            var c = Math.cos(u);
+            var s = Math.sin(u);
+            vertices[kv] = c * radius;
+            normals[kv++] = 0;
+            vertices[kv] = s * radius;
+            normals[kv++] = 0;
+            vertices[kv] = height / 2;
+            normals[kv++] = -1;
+            texCoords[kt++] = 0.5 + 0.5 * c;
+            texCoords[kt++] = 0.5 + 0.5 * s;
+        }
+        for (i = 0; i < slices; i++) {
+            indices[k++] = startIndex;
+            indices[k++] = startIndex + i + 1;
+            indices[k++] = startIndex + i + 2;
+        }
+    }
+    return {
+        vertexPositions: vertices,
+        vertexNormals: normals,
+        vertexTextureCoords: texCoords,
+        indices: indices
+    };
+}

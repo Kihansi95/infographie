@@ -115,12 +115,21 @@ var component = {
         render: function() {
           modelview = mult(modelview, translate(4, -4, -6));
           normalMatrix = extractNormalMatrix(modelview);  // faire avant scale
-          modelview = mult(modelview, scale4(2,2,7));
+          modelview = mult(modelview, scale4(2,2,5));
           cylinder.render();
-          //modelview = mult(modelview, scale4(3,3,6));
-          //hemisphere.render();
 
           // remise
+          modelview = mult(modelview, scale4(.5,.5,1/7));
+
+          modelview = mult(modelview, translate(0, 0, -4.5));
+          modelview = mult(modelview, scale4(2,2,2));
+          cylinder_non_top_outside.render();
+          setColor(22, 109, 144);
+          modelview = mult(modelview, scale4(0.9,0.9,0.9));
+          cylinder_non_top_insdide.render();
+
+          // remise
+          cleanColor();
           modelview = mult(modelview, scale4(1/2,1/2,1/7));
         }
     },

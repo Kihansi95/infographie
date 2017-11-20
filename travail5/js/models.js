@@ -2,7 +2,7 @@
 // Must be loaded before spacecraft
 
 var sphere, tetrahedron, squareTetra, hemicone, cylinder, hemisphere,
-    m_cube, m_ring, pentagonprism, trapeziumprism, triangleprism;
+    m_cube, m_ring, pentagonprism, trapeziumprism, triangleprism, cylinder_non_top_insdide, cylinder_non_top_outside;
 
 function initModel() {
     sphere = createModel(uvSphere(1, 25, 25));
@@ -10,6 +10,9 @@ function initModel() {
     squareTetra = createModel(uvSquareTetrahedron(1, 1, 1 ));
     hemicone = createModel(uvQuartersphereOutside(1, 25, 1));
     cylinder = createModel(uvCylinder(1,1,32.0, false, false ));
+
+    cylinder_non_top_insdide = createModel(uvCylinderInside(1,1,32.0, false, true ));
+    cylinder_non_top_outside = createModel(uvCylinder(1,1,32.0, true, true ));
 
     hemisphere = createModel(uvHemisphereOutside(1,32,16));
 
