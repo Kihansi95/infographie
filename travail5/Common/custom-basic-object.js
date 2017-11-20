@@ -176,8 +176,6 @@ function uvTrapeziumPrism(hasBottom, upper, downer, height) {
     d.a = (d.a || 0.8)/2; d.b = (d.b || 1)/2; d.c = d.c || 1;           // default downder
     u.a = (u.a || 0.4) / 2; u.b = (u.b || 0.5) / 2; u.c = u.c || 0.5;   // default upper
 
-    console.log('value', u, d, h);
-
     function face(xyz, nrm) {
         var start = coords.length / 3;
         var i;

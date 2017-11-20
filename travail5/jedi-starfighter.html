@@ -59,6 +59,9 @@
      varying vec3 fviewCoords;
      varying vec2 fTexCoord;
 
+     uniform sampler2D texture;
+     uniform bool hasTexture;
+
      void main() {
 
           vec4 Color;
@@ -78,7 +81,12 @@
           Color = ambient + diffuse + specular;
           Color.a = 1.0;
 
-          gl_FragColor = Color;
+          if(hasTexture) {
+              gl_FragColor = Color * texture2D( texture, fTexCoord );
+          }
+          else {
+              gl_FragColor = Color;
+          }
      }
 </script>
 
@@ -93,6 +101,7 @@
     <script type="text/javascript" src="Common/custom-basic-object.js"></script>
     <!-- /custom -->
     <!-- project -->
+    <script type="text/javascript" src="js/texture.js"></script>
     <script type="text/javascript" src="js/models.js"></script>
     <script type="text/javascript" src="js/phong-color.js"></script>
     <script type="text/javascript" src="js/spacecraft.js"></script>

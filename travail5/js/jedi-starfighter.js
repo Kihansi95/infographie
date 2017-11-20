@@ -153,7 +153,9 @@ var render = function() {
 
     gl.clear( gl.COLOR_BUFFER_BIT );
 
-    traverse(spacecraft.controlCenter);
+    if (ntextures_loaded == ntextures_tobeloaded) {
+        traverse(spacecraft.controlCenter);
+    }
 };
 
 window.onload = function init() {
@@ -221,6 +223,11 @@ window.onload = function init() {
             "Could not initialize WebGL: " + e;
         return;
     }
+
+    //
+    // Initialize a texture
+    //
+    initTexture();
 
     render();
 };

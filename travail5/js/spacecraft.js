@@ -33,11 +33,13 @@ var component = {
             modelview = mult(modelview, scale4(5, 10, 25));
 
             setColor(205, 172, 134);
-
+            setTexture(TEXTURE.FRONTWING);
             squareTetra.render();
 
             // remise
+            cleanTexture();
             cleanColor();
+            gl.disableVertexAttribArray(TexCoordLoc);
             modelview = mult(modelview, scale4(1 / 5, 1 / 10, 1 / 25));
             modelview = mult(modelview, rotate(-90.0, 0, 0, 1));
         }
@@ -51,9 +53,14 @@ var component = {
             normalMatrix = extractNormalMatrix(modelview);
             modelview = mult(modelview, shear(70));
             modelview = mult(modelview, scale4(11, 7, 2));   // 3rd = height
+
+            setColor(255, 255, 255);
+            setTexture(TEXTURE.MIDDLEWING);
             m_cube.render();
 
             // remise
+            cleanTexture();
+            cleanColor();
             modelview = mult(modelview, scale4(1/11, 1/7, 1/2));
             modelview = mult(modelview, shear(-70));
             modelview = mult(modelview, rotate(-96.0, 1, 0, 0));
@@ -197,9 +204,18 @@ var component = {
           modelview = mult(modelview, rotate(90, 1, 0, 0));
           normalMatrix = extractNormalMatrix(modelview);  // faire avant scale
           modelview = mult(modelview, scale4(1.2, 1.2, 1.2));
+          setColor(173,171,173);
+          setTexture(TEXTURE.R2D2HEAD);
+
           hemisphere.render();
+
           modelview = mult(modelview, translate(0, 0, .5));
+
+          setTexture(TEXTURE.R2D2BODY);
           cylinder.render();
+
+          cleanTexture();
+          cleanColor();
         }
     }
 

@@ -3,10 +3,38 @@
 var ntextures_tobeloaded=0;
 var ntextures_loaded=0;
 
+// store texture
 var textures = [];
+
+// enum texture aka. code texture
 var TEXTURE = {
-    FRONTWING: 0
+    FRONTWING: 0,
+    R2D2HEAD: 1,
+    R2D2BODY: 2,
+    MIDDLEWING: 3
 };
+
+var TEXTURE_SRC = {
+    FRONTWING: "img/spacecraft.jpg",
+    R2D2HEAD: "img/r2d2-head.jpg",
+    R2D2BODY: "img/r2d2-body.jpg",
+    MIDDLEWING: "img/middle-wing.png"
+}
+
+// iterate all the texture list
+function initTexture() {
+    Object.keys(TEXTURE).forEach(function(component) {
+      textures[TEXTURE[component]] = gl.createTexture();
+
+      textures[TEXTURE[component]].image = new Image();
+      textures[TEXTURE[component]].image.onload = function () {
+          handleLoadedTexture(textures[TEXTURE[component]])
+      }
+
+      textures[TEXTURE[component]].image.src = TEXTURE_SRC[component];
+      ntextures_tobeloaded++;
+    })
+}
 
 function handleLoadedTexture(texture) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -22,16 +50,18 @@ function handleLoadedTexture(texture) {
     gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
-function initTexture() {
-    // spacecraft texture
-    texture[TEXTURE.FRONTWING] = gl.createTexture();
+// service function that is used in spacecraft's definition
+function setTexture(code) {
+    // code using TEXTURE.FRONTWING
 
-    siggraphTexture.image = new Image();
-    siggraphTexture.image.onload = function () {
-        handleLoadedTexture(texture[TEXTURE.FRONTWING])
-    }
+    gl.activeTexture(gl['TEXTURE'+code]);
+    gl.bindTexture(gl.TEXTURE_2D, textures[code]);
+    gl.uniform1i(gl.getUniformLocation(prog, "texture"), code);
+    gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), true);
+    gl.enableVertexAttribArray(TexCoordLoc);
+}
 
-    texture[TEXTURE.FRONTWING].image.src = "img/spacecraft.jpg";
-    ntextures_tobeloaded++;
-
+function cleanTexture() {
+    gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), false);
+    gl.disableVertexAttribArray(TexCoordLoc);
 }
