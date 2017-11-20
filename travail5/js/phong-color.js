@@ -6,23 +6,27 @@ var COLOR = {
     SHININESS: 100.0
 };
 
-function setColor(r,b,g) {
-    setDiffuse(r,b,g);
-    setAmbient(r,b,g);
+function setColor(r,b,g, o) {
+    o = o || 1;
+    setDiffuse(r,b,g, o);
+    setAmbient(r,b,g, o);
 }
 
-function setDiffuse(r,b,g) {
-    diffuseProduct = mult(lightDiffuse, vec4(r/255,b/255,g/255,1));
+function setDiffuse(r,b,g,o) {
+    o = o || 1;
+    diffuseProduct = mult(lightDiffuse, vec4(r/255,b/255,g/255, o));
     gl.uniform4fv(gl.getUniformLocation(prog, "diffuseProduct"), flatten(diffuseProduct));
 }
 
-function setAmbient(r,b,g) {
-    ambientProduct = mult(lightAmbient, vec4(r/255,b/255,g/255,1));
+function setAmbient(r,b,g, o) {
+    o = o || 1
+    ambientProduct = mult(lightAmbient, vec4(r/255,b/255,g/255, o));
   	gl.uniform4fv(gl.getUniformLocation(prog, "ambientProduct"), flatten(ambientProduct));
 }
 
-function setSpecular(r,b,g) {
-    diffuseProduct = mult(lightDiffuse, vec4(r/255,b/255,g/255,1));
+function setSpecular(r,b,g, o) {
+    o = o || 1;
+    diffuseProduct = mult(lightDiffuse, vec4(r/255,b/255,g/255, o));
     gl.uniform4fv(gl.getUniformLocation(prog, "diffuseProduct"), flatten(diffuseProduct));
 }
 

@@ -31,9 +31,13 @@ var component = {
             modelview = mult(modelview, rotate(90.0, 0, 0, 1));
             normalMatrix = extractNormalMatrix(modelview);
             modelview = mult(modelview, scale4(5, 10, 25));
+
+            setColor(205, 172, 134);
+
             squareTetra.render();
 
             // remise
+            cleanColor();
             modelview = mult(modelview, scale4(1 / 5, 1 / 10, 1 / 25));
             modelview = mult(modelview, rotate(-90.0, 0, 0, 1));
         }
@@ -63,8 +67,12 @@ var component = {
             modelview = mult(modelview, rotate(180, 0, 1, 0));
             normalMatrix = extractNormalMatrix(modelview);
             modelview = mult(modelview, scale4(13, 2, 10));
+
+            setColor(110, 58, 55);
             pentagonprism.render();
 
+            //remise
+            cleanColor();
             modelview = mult(modelview, scale4(1/13, .5, .1));
             modelview = mult(modelview, rotate(-180, 0, 1, 0));
         }
@@ -79,8 +87,7 @@ var component = {
             modelview = mult(modelview, scale4(.5, .5, 2.3));
 
             // apply color
-            setAmbient(119, 59, 51);
-            setDiffuse(119, 59, 51);
+            setColor(110, 53, 50);
 
             cylinder.render();
 
@@ -92,11 +99,14 @@ var component = {
 
     muzzle: {
         render: function () {
+            modelview = mult(modelview, translate(0, 0, .3));
             normalMatrix = extractNormalMatrix(modelview);
-            modelview = mult(modelview, scale4(.3, .3, 2.8));
+            modelview = mult(modelview, scale4(.3, .3, 2.1));
+            setColor(45, 35, 32);
             cylinder.render();
 
             // remise
+            cleanColor();
             modelview = mult(modelview, scale4(10 / 3, 10 / 3, 1 / 2.8));
         }
     },
@@ -143,10 +153,12 @@ var component = {
             modelview = mult(modelview, scale4(
                 component.control_center.attr.width,6,
                 component.control_center.attr.height));
+            setColor(19, 19, 14);
 
             hemisphere.render();
 
             // remise
+            cleanColor();
             modelview = mult(modelview, scale4(
                 1/component.control_center.attr.width,1/6,
                 1/component.control_center.attr.height));
