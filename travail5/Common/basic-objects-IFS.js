@@ -1373,6 +1373,7 @@ function uvQuartersphereOutside(radius, slices, stacks) {
     var indexT = 0;
     for (i = 0; i <= stacks; i++) {
         v = -Math.PI / 2 + i * dv;        // angle v goes from -pi/2 to zero (instead of -pi/2 to pi/2 for the sphere)
+
         for (j = 0; j <= slices; j++) {
             u = j * du;
             x = Math.cos(u) * Math.cos(v);

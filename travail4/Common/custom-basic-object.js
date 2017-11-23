@@ -61,7 +61,7 @@ function uvSquareTetrahedron(width, height, depth) {
     var texCoords = [];
     var indices = [];
 
-    function face(xyz, nrm) {
+    function face(xyz, nrm, coord) {
         var start = coords.length / 3;
         var i;
         for (i = 0; i < 9; i++) {
@@ -70,14 +70,15 @@ function uvSquareTetrahedron(width, height, depth) {
         for (i = 0; i < 3; i++) {
             normals.push(nrm[0], nrm[1], nrm[2]);
         }
-        texCoords.push(0, 0, .5, 1, 1, 0);
+        texCoords = texCoords.concat(coord);
+        // texCoords.push(0, 0, 1, 0, 1, 0 , 0 , 1);
         indices.push(start, start + 1, start + 2);
     }
 
-    face([-w, 0, 0, w, 0, 0, 0, 0, d], [0, -1, 0]);                             // A B C
-    face([-w, 0, 0, 0, 0, d, 0, h, 0], calcNormal([-w, 0, -d], [-w, -h, 0]));   // A C D
-    face([0, 0, d, w, 0, 0, 0, h, 0], calcNormal([w, -h, 0], [w, 0, -d]));      // C B D
-    face([w, 0, 0, -w, 0, 0, 0, h, 0], [0, 0, -1]);                             //B A D
+    face([-w, 0, 0, w, 0, 0, 0, 0, d], [0, -1, 0], [0, 0, 1, 0, 0, 1]);                             // A B C
+    face([-w, 0, 0, 0, 0, d, 0, h, 0], calcNormal([-w, 0, -d], [-w, -h, 0]), [0, 0, 1, 0, 0, 1]);   // A C D
+    face([0, 0, d, w, 0, 0, 0, h, 0], calcNormal([w, -h, 0], [w, 0, -d]), [1, 0, 0, 0, 0, 1]);      // C B D
+    face([w, 0, 0, -w, 0, 0, 0, h, 0], [0, 0, -1], [0, 0, 1, 0, 0, 1]);                             //B A D
 
     return {
         vertexPositions: new Float32Array(coords),

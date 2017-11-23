@@ -23,7 +23,10 @@ function initModel() {
     sphere = createModel(uvSphere(1, config.sphere.slices, config.sphere.stacks));
     tetrahedron = createModel(uvTetrahedron(config.tetrahedron.side));
     squareTetra = createModel(uvSquareTetrahedron(config.squareTetrahedron.w, config.squareTetrahedron.h, config.squareTetrahedron.d ));
-    hemicone = createModel(uvQuartersphereOutside(1, 25, 1));
+    // hemicone = createModel(uvQuartersphereOutside(1, 25, 1));
+
+    hemicone = createModel(uvHemiCone());
+
     cylinder = createModel(uvCylinder(1,1,25.0, false, false ));
     hemisphere = createModel(uvHemisphereOutside(1,32,16));
 
@@ -32,7 +35,7 @@ function initModel() {
 
     pentagonprism = createModel(uvPentagonPrism(true, 1, .65, 0.8, 0.4)); // right/left = 1/2, front/back = 3/4, left/back = 0.8
 
-    trapeziumprism = createModel(uvTrapeziumPrism(true, {a: .5, b: 1, c:0.5}, {a: 1, b: 3, c:1.2}, 3));
+    trapeziumprism = createModel(uvTrapeziumPrism(true, {a: .3, b: 1, c:0.5}, {a: .8, b: 3, c:1.2}, 3));
 
     triangleprism = createModel(uvCylinder(1,1, 3, false, false ));
 }

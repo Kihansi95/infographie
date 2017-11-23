@@ -9,6 +9,9 @@ function initModel() {
     tetrahedron = createModel(uvTetrahedron(10));
     squareTetra = createModel(uvSquareTetrahedron(1, 1, 1 ));
     hemicone = createModel(uvQuartersphereOutside(1, 25, 1));
+
+    // hemicone = createModel(uvHemiCone(2, 3, 25, true)); TODO build the new form of control center here
+
     cylinder = createModel(uvCylinder(1,1,32.0, false, false ));
 
     cylinder_non_top_insdide = createModel(uvCylinderInside(1,1,32.0, false, true ));

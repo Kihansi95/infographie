@@ -11,15 +11,25 @@ var TEXTURE = {
     FRONTWING: 0,
     R2D2HEAD: 1,
     R2D2BODY: 2,
-    MIDDLEWING: 3
+    MIDDLEWING: 3,
+    CONTROLCENTER: 4,
+    BACKWING: 5,
+    ENGINE: 6,
+    ENGINEBOTTOM: 7,
+    CONTROLCOVER: 8
 };
 
 var TEXTURE_SRC = {
-    FRONTWING: "img/spacecraft.jpg",
+    FRONTWING: "img/front-wing.jpg",
     R2D2HEAD: "img/r2d2-head.jpg",
     R2D2BODY: "img/r2d2-body.jpg",
-    MIDDLEWING: "img/middle-wing.png"
-}
+    MIDDLEWING: "img/middle-wing.jpg",
+    CONTROLCENTER: "img/control-center.jpg",
+    BACKWING: "img/back-wing.jpg",
+    ENGINE: "img/engine.png",
+    ENGINEBOTTOM: "img/push-engine.jpg",
+    CONTROLCOVER: "img/control-cover.jpg"
+};
 
 // iterate all the texture list
 function initTexture() {
@@ -52,16 +62,18 @@ function handleLoadedTexture(texture) {
 
 // service function that is used in spacecraft's definition
 function setTexture(code) {
-    // code using TEXTURE.FRONTWING
+    // code using TEXTURE.[your code]
 
-    gl.activeTexture(gl['TEXTURE'+code]);
-    gl.bindTexture(gl.TEXTURE_2D, textures[code]);
-    gl.uniform1i(gl.getUniformLocation(prog, "texture"), code);
-    gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), true);
-    gl.enableVertexAttribArray(TexCoordLoc);
-}
+    if(typeof code === 'undefined' || code === null) {
+        gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), false);
+        gl.disableVertexAttribArray(TexCoordLoc);
+    } else {
+        gl.activeTexture(gl['TEXTURE'+code]);
+        gl.bindTexture(gl.TEXTURE_2D, textures[code]);
+        gl.uniform1i(gl.getUniformLocation(prog, "texture"), code);
+        gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), true);
+        gl.enableVertexAttribArray(TexCoordLoc);
+    }
 
-function cleanTexture() {
-    gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), false);
-    gl.disableVertexAttribArray(TexCoordLoc);
+
 }
