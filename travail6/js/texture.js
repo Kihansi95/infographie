@@ -21,7 +21,10 @@ var TEXTURE = {
     CONTROLCOVER: 8,
 
     // solar system
-    EARTH: 9
+    EARTH: 9,
+    MOON: 10,
+    SATURN: 11,
+    SATURN_RING: 12
 };
 
 var TEXTURE_SRC = {
@@ -38,7 +41,10 @@ var TEXTURE_SRC = {
     CONTROLCOVER: "img/spacecraft/control-cover.jpg",
 
     // solar system
-    EARTH: "img/solarsystem/earth.jpg"
+    EARTH: "img/solarsystem/earth.jpg",
+    MOON: "img/solarsystem/moon.jpg",
+    SATURN: "img/solarsystem/saturn.jpg",
+    SATURN_RING: "img/solarsystem/saturn_ring.jpg"
 };
 
 // only used in main js
@@ -50,7 +56,7 @@ function initTexture() {
 
         textures[TEXTURE[component]].image = new Image();
         textures[TEXTURE[component]].image.onload = function () {
-            handleLoadedTexture(textures[TEXTURE[component]])
+            handleLoadedTexture(textures[TEXTURE[component]], component)
         }
 
         textures[TEXTURE[component]].image.src = TEXTURE_SRC[component];
@@ -59,7 +65,7 @@ function initTexture() {
 }
 
 // private
-function handleLoadedTexture(texture) {
+function handleLoadedTexture(texture, component) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);

@@ -287,57 +287,56 @@ spacecraft.initNodes = function(figure, Id) {
     switch (Id) {
 
         // central
-        case spacecraft.controlCenter:
-            figure[spacecraft.controlCenter] = createNode(m, component.control_center.render, spacecraft.leftWing, spacecraft.controlRoom);
+        case SPACECRAFT.controlCenter:
+            figure[SPACECRAFT.controlCenter] = createNode(m, component.control_center.render, SPACECRAFT.leftWing, SPACECRAFT.controlRoom);
             break;
 
-        case spacecraft.controlRoom:
-            figure[spacecraft.controlRoom] = createNode(m, component.control_room.render, spacecraft.controlCover, null);
+        case SPACECRAFT.controlRoom:
+            figure[SPACECRAFT.controlRoom] = createNode(m, component.control_room.render, SPACECRAFT.controlCover, null);
             break;
 
-        case spacecraft.controlCover:
-            figure[spacecraft.controlCover] = createNode(m, component.control_cover.render, null, null);
+        case SPACECRAFT.controlCover:
+            figure[SPACECRAFT.controlCover] = createNode(m, component.control_cover.render, null, null);
             break;
 
         // wings
-        case spacecraft.leftWing:
+        case SPACECRAFT.leftWing:
 
-            figure[spacecraft.leftWing] = createNode(m, component.front_wing.render, spacecraft.rightWing, spacecraft.gun);
+            figure[SPACECRAFT.leftWing] = createNode(m, component.front_wing.render, SPACECRAFT.rightWing, SPACECRAFT.gun);
             break;
 
-        case spacecraft.gun:
-            figure[spacecraft.gun] = createNode(m, component.gun.render, spacecraft.middleWing, spacecraft.muzzle);
+        case SPACECRAFT.gun:
+            figure[SPACECRAFT.gun] = createNode(m, component.gun.render, SPACECRAFT.middleWing, SPACECRAFT.muzzle);
             break;
 
-        case spacecraft.middleWing:
-            figure[spacecraft.middleWing] = createNode(m, component.middle_wing.render, null, spacecraft.backWing);
+        case SPACECRAFT.middleWing:
+            figure[SPACECRAFT.middleWing] = createNode(m, component.middle_wing.render, null, SPACECRAFT.backWing);
             break;
 
-        case spacecraft.backWing:
-            figure[spacecraft.backWing] = createNode(m, component.back_wing.render, null, spacecraft.engine);
+        case SPACECRAFT.backWing:
+            figure[SPACECRAFT.backWing] = createNode(m, component.back_wing.render, null, SPACECRAFT.engine);
             break;
 
-        case spacecraft.muzzle:
-            figure[spacecraft.muzzle] = createNode(m, component.muzzle.render, null, null);
+        case SPACECRAFT.muzzle:
+            figure[SPACECRAFT.muzzle] = createNode(m, component.muzzle.render, null, null);
             break;
 
-        case spacecraft.rightWing:
+        case SPACECRAFT.rightWing:
             m = mult(m, scale4(-1, 1, 1)); // make mirror by y-axis from left wing
-            figure[spacecraft.rightWing] = createNode(m, component.front_wing.render, spacecraft.r2d2, spacecraft.gun);
+            figure[SPACECRAFT.rightWing] = createNode(m, component.front_wing.render, SPACECRAFT.r2d2, SPACECRAFT.gun);
             break;
 
         // engine
-        case spacecraft.engine :
-            figure[spacecraft.engine] = createNode(m, component.engine.render, null, null);
+        case SPACECRAFT.engine :
+            figure[SPACECRAFT.engine] = createNode(m, component.engine.render, null, null);
             break;
 
-        case spacecraft.r2d2:
-            figure[spacecraft.r2d2] = createNode(m, component.robot.render, null, null);
+        case SPACECRAFT.r2d2:
+            figure[SPACECRAFT.r2d2] = createNode(m, component.robot.render, null, null);
             break;
 
-        case spacecraft.test:
-            figure[spacecraft.test] = createNode(m, component.test, null, null);
+        case SPACECRAFT.test:
+            figure[SPACECRAFT.test] = createNode(m, component.test, null, null);
             break;
     }
 };
-

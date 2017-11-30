@@ -137,18 +137,7 @@ function getTextContent(elementID) {
     return str;
 }
 
-var stack = [];
-
-function traverse(Id) {
-    if(Id == null) return;
-    stack.push(modelview);
-    modelview = mult(modelview, figure[Id].transform);
-    figure[Id].render();
-    if(figure[Id].child != null) traverse(figure[Id].child);
-    modelview = stack.pop();
-    if(figure[Id].sibling != null) traverse(figure[Id].sibling);
-}
-
+var task = null;
 var render = function() {
     flattenedmodelview = rotator.getViewMatrix();
     modelview = unflatten(flattenedmodelview);
@@ -156,9 +145,21 @@ var render = function() {
     gl.clear( gl.COLOR_BUFFER_BIT );
 
     if (ntextures_loaded == ntextures_tobeloaded) {
-        // traverse(spacecraft.controlCenter);      TODO display spacecraft when finish solar system
-        RCLS.traverse(spacecraft.getFigure(), SPACECRAFT.controlCenter);
-        // traverse(solarsystem.earth);
+
+        // traverse(spacecraft, SPACECRAFT.controlCenter);
+        traverse(planets, PLANETS.earth);
+
+        if(task != null) {
+            clearTimeout(task);
+        }
+
+        task = setTimeout(
+            function () {
+              render();
+            }, 20
+        );
+        //traverse(planets.getFigure(), PLANETS.saturn)
+
     }
 };
 
@@ -205,21 +206,22 @@ window.onload = function init() {
         diffuseProduct = mult(lightDiffuse, materialDiffuse);
         specularProduct = mult(lightSpecular, materialSpecular);
 
-		gl.uniform4fv(gl.getUniformLocation(prog, "ambientProduct"), flatten(ambientProduct));
-		gl.uniform4fv(gl.getUniformLocation(prog, "diffuseProduct"), flatten(diffuseProduct));
-		gl.uniform4fv(gl.getUniformLocation(prog, "specularProduct"), flatten(specularProduct));
-		gl.uniform1f(gl.getUniformLocation(prog, "shininess"), materialShininess);
+    		gl.uniform4fv(gl.getUniformLocation(prog, "ambientProduct"), flatten(ambientProduct));
+    		gl.uniform4fv(gl.getUniformLocation(prog, "diffuseProduct"), flatten(diffuseProduct));
+    		gl.uniform4fv(gl.getUniformLocation(prog, "specularProduct"), flatten(specularProduct));
+    		gl.uniform1f(gl.getUniformLocation(prog, "shininess"), materialShininess);
 
-		gl.uniform4fv(gl.getUniformLocation(prog, "lightPosition"), flatten(lightPosition));
+    		gl.uniform4fv(gl.getUniformLocation(prog, "lightPosition"), flatten(lightPosition));
 
-		projection = perspective(70.0, 1.0, 1.0, 200.0);
-		gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));  // send projection matrix to the shader program
+    		projection = perspective(70.0, 1.0, 1.0, 200.0);
+    		gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));  // send projection matrix to the shader program
 
-		// initialize the model
+    		// initialize the model
         initModel();
 
         // build the spacecraft
         spacecraft.build();
+        planets.build();
     }
     catch (e) {
         console.log(e);

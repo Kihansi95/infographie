@@ -5,7 +5,7 @@ var sphere, tetrahedron, squareTetra, hemicone, cylinder, hemisphere,
     m_cube, m_ring, pentagonprism, trapeziumprism, triangleprism, cylinder_non_top_insdide, cylinder_non_top_outside;
 
 function initModel() {
-    sphere = createModel(uvSphere(1, 25, 25));
+    sphere = createModel(uvSphere(1, 32, 32));
     tetrahedron = createModel(uvTetrahedron(10));
     squareTetra = createModel(uvSquareTetrahedron(1, 1, 1 ));
     hemicone = createModel(uvQuartersphereOutside(1, 25, 1));
@@ -21,7 +21,7 @@ function initModel() {
 
     m_cube = createModel(cube(1));
 
-    m_ring = createModel(uvTorus());
+    m_ring = createModel(ring(0.7,1, 40));
 
     pentagonprism = createModel(uvPentagonPrism(true, 1, .65, 0.8, 0.4)); // right/left = 1/2, front/back = 3/4, left/back = 0.8
 
