@@ -8,6 +8,8 @@ var textures = [];
 
 // enum texture aka. code texture
 var TEXTURE = {
+
+    // spacecraft
     FRONTWING: 0,
     R2D2HEAD: 1,
     R2D2BODY: 2,
@@ -16,19 +18,27 @@ var TEXTURE = {
     BACKWING: 5,
     ENGINE: 6,
     ENGINEBOTTOM: 7,
-    CONTROLCOVER: 8
+    CONTROLCOVER: 8,
+
+    // solar system
+    EARTH: 9
 };
 
 var TEXTURE_SRC = {
-    FRONTWING: "img/front-wing.jpg",
-    R2D2HEAD: "img/r2d2-head.jpg",
-    R2D2BODY: "img/r2d2-body.jpg",
-    MIDDLEWING: "img/middle-wing.jpg",
-    CONTROLCENTER: "img/control-center.jpg",
-    BACKWING: "img/back-wing.jpg",
-    ENGINE: "img/engine.png",
-    ENGINEBOTTOM: "img/push-engine.jpg",
-    CONTROLCOVER: "img/control-cover.jpg"
+
+    // spacecraft
+    FRONTWING: "img/spacecraft/front-wing.jpg",
+    R2D2HEAD: "img/spacecraft/r2d2-head.jpg",
+    R2D2BODY: "img/spacecraft/r2d2-body.jpg",
+    MIDDLEWING: "img/spacecraft/middle-wing.jpg",
+    CONTROLCENTER: "img/spacecraft/control-center.jpg",
+    BACKWING: "img/spacecraft/back-wing.jpg",
+    ENGINE: "img/spacecraft/engine.png",
+    ENGINEBOTTOM: "img/spacecraft/push-engine.jpg",
+    CONTROLCOVER: "img/spacecraft/control-cover.jpg",
+
+    // solar system
+    EARTH: "img/solarsystem/earth.jpg"
 };
 
 // only used in main js

@@ -1,20 +1,10 @@
+// spacecraft.js contains only the spacecraft definition using models.js
+// require: loaded models.js
+// Must be loaded before jedi-starfighter.js
 
-var SPACECRAFT = {
-    controlCenter: 0,
-    leftWing: 1,
-    rightWing: 2,
-    gun: 3,
-    muzzle: 4,
-    controlRoom: 5,
-    middleWing: 6,
-    backWing: 7,
-    controlCover: 8,
-    engine: 9,
-    r2d2: 10,
-    test: 11
-};
+var stack = [];
 
-var spacecraft = new right_child_left_sibling(SPACECRAFT);
+var figure = [];
 
 var component = {
 
@@ -281,7 +271,63 @@ var component = {
 
 };
 
-spacecraft.initNodes = function(figure, Id) {
+var spacecraft = {
+    controlCenter: 0,
+    leftWing: 1,
+    rightWing: 2,
+    gun: 3,
+    muzzle: 4,
+    controlRoom: 5,
+    middleWing: 6,
+    backWing: 7,
+    controlCover: 8,
+    engine: 9,
+    r2d2: 10,
+    test: 11
+};
+
+for (var i = 0; i < Object.keys(spacecraft).length; i++) figure[i] = createNode(null, null, null, null);
+
+var vBuffer;
+
+var pointsArray = [];
+
+//-------------------------------------------
+
+function scale4(a, b, c) {
+    var result = mat4();
+    result[0][0] = a;
+    result[1][1] = b;
+    result[2][2] = c;
+    return result;
+}
+
+//--------------------------------------------
+
+/**
+ * This function is called inside initNodes(Id). This create a new node from parameter.
+ * @param {mat4} transform: transformation mattrix relative to its parent
+ * @param {function} render: function for render view
+ * @param {int} sibling: sibling's id
+ * @param {int} child: child's id
+ * @returns {{transform: *, render: *, sibling: *, child: *}}
+ */
+function createNode(transform, render, sibling, child) {
+    var node = {
+        transform: transform,
+        render: render,
+        sibling: sibling,
+        child: child
+    };
+    return node;
+}
+
+/**
+ * Definition node's form from their id
+ * @param Id
+ */
+function initNodes(Id) {
+
     var m = mat4();
 
     switch (Id) {
@@ -339,5 +385,9 @@ spacecraft.initNodes = function(figure, Id) {
             figure[spacecraft.test] = createNode(m, component.test, null, null);
             break;
     }
-};
 
+}
+
+function buildSpacecraft() {
+    for (i = 0; i < Object.keys(spacecraft).length; i++) initNodes(i);
+}

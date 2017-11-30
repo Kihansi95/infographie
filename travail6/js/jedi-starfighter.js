@@ -137,6 +137,8 @@ function getTextContent(elementID) {
     return str;
 }
 
+var stack = [];
+
 function traverse(Id) {
     if(Id == null) return;
     stack.push(modelview);
@@ -154,7 +156,9 @@ var render = function() {
     gl.clear( gl.COLOR_BUFFER_BIT );
 
     if (ntextures_loaded == ntextures_tobeloaded) {
-        traverse(spacecraft.controlCenter);
+        // traverse(spacecraft.controlCenter);      TODO display spacecraft when finish solar system
+        RCLS.traverse(spacecraft.getFigure(), SPACECRAFT.controlCenter);
+        // traverse(solarsystem.earth);
     }
 };
 
@@ -215,7 +219,7 @@ window.onload = function init() {
         initModel();
 
         // build the spacecraft
-        buildSpacecraft()
+        spacecraft.build();
     }
     catch (e) {
         console.log(e);
