@@ -59,9 +59,6 @@
      varying vec3 fviewCoords;
      varying vec2 fTexCoord;
 
-     uniform sampler2D texture;
-     uniform bool hasTexture;
-
      void main() {
 
           vec4 Color;
@@ -81,12 +78,7 @@
           Color = ambient + diffuse + specular;
           Color.a = 1.0;
 
-          if(hasTexture) {
-              gl_FragColor = Color * texture2D( texture, fTexCoord );
-          }
-          else {
-              gl_FragColor = Color;
-          }
+          gl_FragColor = Color;
      }
 </script>
 
@@ -101,9 +93,7 @@
     <script type="text/javascript" src="Common/custom-basic-object.js"></script>
     <!-- /custom -->
     <!-- project -->
-    <script type="text/javascript" src="js/texture.js"></script>
     <script type="text/javascript" src="js/models.js"></script>
-    <script type="text/javascript" src="js/phong-color.js"></script>
     <script type="text/javascript" src="js/spacecraft.js"></script>
     <!-- /project -->
     <script type="text/javascript" src="js/jedi-starfighter.js"></script>
@@ -111,9 +101,9 @@
 </head>
 <body style="background-color:#DDD">
 
-<h1>WebGL - Projet de conception: Delta-7 Aethersprite-class light interceptor</h1>
+<h1>WebGL - Projet de conception: Jedi fighter</h1>
 
-<h2>P/s: Les trois éléments de types émissif sont le paire de pistole, la chambre de contrôle noir et le push système à l'arrière en bleu ciel</h2>
+<h2>Utilisez la souris pour faire tourner les objets à l'aide de SimpleRotator()</h2>
 <noscript>&lt;hr&gt;&lt;h3&gt;This page requires Javascript and a web browser that supports WebGL&lt;/h3&gt;&lt;hr&gt;</noscript>
 
 
