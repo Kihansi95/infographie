@@ -14,6 +14,17 @@ var CoordsLoc;
 var NormalLoc;
 var TexCoordLoc;
 
+// Location of the attribute variables in the environment mapping shader program.
+var aCoordsmap;
+var aNormalmap;
+var aTexCoordmap;
+
+// Location of the uniform variables in the environment mapping shader program.
+var uProjectionmap;
+var uModelviewmap;
+var uNormalMatrixmap;
+var uSkybox;
+
 // Location of the coords attribute variable in the shader program used for texturing the environment box.
 var aCoordsbox;
 var aNormalbox;
@@ -137,6 +148,8 @@ function createModelbox(modelData) {
 	return model;
 }
 
+
+
 function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
     var vsh = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vsh, vertexShaderSource);
@@ -195,7 +208,7 @@ function render(){
 	    // envbox.render();
 
 	    gl.useProgram(prog);
-	
+
 	    // draw spacecraft and the planets
         traverse(spacecraft, SPACECRAFT.controlCenter);
         traverse(planets, PLANETS.earth);
@@ -215,9 +228,9 @@ window.onload = function init() {
         if (!gl) {
             throw "Could not create WebGL context.";
         }
-	
+
 	    // TODO SKYBOX
-        
+
         // LOAD SHADER (standard texture mapping)
         var vertexShaderSource = getTextContent("vshader");
         var fragmentShaderSource = getTextContent("fshader");
@@ -246,7 +259,9 @@ window.onload = function init() {
         ModelviewLoc = gl.getUniformLocation(prog, "modelview");
         ProjectionLoc = gl.getUniformLocation(prog, "projection");
         NormalMatrixLoc = gl.getUniformLocation(prog, "normalMatrix");
-	
+
+        uEnvbox = gl.getUniformLocation(progbox, "skybox");
+
 	    alphaLoc = gl.getUniformLocation(prog, "alpha");
 
         gl.enableVertexAttribArray(CoordsLoc);
@@ -282,7 +297,7 @@ window.onload = function init() {
         // build the spacecraft
         spacecraft.build();
         planets.build();
-        
+
         // create the environment
 	    // TODO SKYBOX
         // envbox = createModelbox(cube(1000.0));
