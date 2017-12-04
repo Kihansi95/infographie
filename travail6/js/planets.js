@@ -8,12 +8,13 @@ var PLANETS = {
 };
 
 var ANIMATE = {
-    earth: {
+    0 :{
         step: 0.2,
         axe: [0,0,1]
     },
-    moon: {
-        step:0
+    1: {
+        step: 1,
+        axe: [0,0,1]
     }
 }
 
@@ -26,23 +27,19 @@ var planets_components = {
         modelview = mult(modelview, rotate(90, 0, 1, 0));
 
         modelview = animate(modelview, PLANETS.earth);
-        // angle_earth += 0.2;
-        // modelview = mult(modelview, rotate(angle_earth, 0, 0, 1));
         normalMatrix = extractNormalMatrix(modelview);  // faire avant scale
         modelview = mult(modelview, scale4(5, 5,5));
 
         setColor(190,190,190);
         setTexture(TEXTURE.EARTH);
-
-
         sphere.render();
         modelview = mult(modelview, scale4(1/5,1/5,1/5));
     },
 
     moon: function() {
 
-      angle_moon += 1;
-      modelview = mult(modelview, rotate(getAngle(PLANETS.earth) + getAngle(PLANTES.moon), 0, 0, 1));
+      angle[PLANETS.moon] += 1;
+      modelview = mult(modelview, rotate(getAngle(PLANETS.earth) + getAngle(PLANETS.moon), 0, 0, 1));
       modelview = mult(modelview, translate(15, 0, 0));
       normalMatrix = extractNormalMatrix(modelview);  // faire avant scale
       modelview = mult(modelview, scale4(1.5, 1.5, 1.5));
@@ -61,8 +58,8 @@ var planets_components = {
       modelview = mult(modelview, rotate(20, 0, 0, 1));
       modelview = mult(modelview, rotate(-50, 1, 0, 0));
 
-      angle_saturn += 0.5;
-      modelview = mult(modelview, rotate(angle_saturn, 0,0,1));
+      angle[PLANETS.saturn] += 0.5;
+      modelview = mult(modelview, rotate(getAngle(PLANETS.saturn), 0,0,1));
       normalMatrix = extractNormalMatrix(modelview);  // faire avant scale
       modelview = mult(modelview, scale4(6, 6, 6));
 
@@ -83,8 +80,8 @@ var planets_components = {
 	    modelview = mult(modelview, rotate(90, 1, 0, 0));
 
 	    // animation
-	    angle_jupiter += .05;
-	    modelview = mult(modelview, rotate(angle_jupiter, 0, 0, 1));
+	    angle[PLANETS.jupiter] += .05;
+	    modelview = mult(modelview, rotate(getAngle(PLANETS.jupiter), 0, 0, 1));
 
 	    normalMatrix = extractNormalMatrix(modelview);  // faire avant scale
 	    modelview = mult(modelview, scale4(50, 50, 50));
@@ -101,8 +98,8 @@ var planets_components = {
 	    modelview = mult(modelview, translate(-25, 0, -25));
 	    modelview = mult(modelview, rotate(90, 0, 1, 0));
 
-	    angle_sigature += 1.5;
-	    modelview = mult(modelview, rotate(angle_sigature, 0, 1, 0));
+	    angle[PLANETS.signature] += 1.5;
+	    modelview = mult(modelview, rotate(getAngle(PLANETS.signature), 0, 1, 0));
 
 	    normalMatrix = extractNormalMatrix(modelview);  // faire avant scale
 	    modelview = mult(modelview, scale4(10, 10, 10));
@@ -119,6 +116,17 @@ var planets_components = {
 
     reflect_cube: function() {
 
+      flattenedmodelview = rotator.getViewMatrix();
+      modelview = unflatten(flattenedmodelview);
+      normalMatrix = extractNormalMatrix(modelview);
+
+      // angle[PLANETS.reflectcube] += 1.5;
+      // modelview = mult(modelview, rotate(getAngle(PLANETS.reflectcube), 0, 1, 0));
+
+      modelview = mult(modelview, scale4(10, 10, 10));
+
+      sethasTexture(2);
+      m_cube.render();
     }
 }
 
@@ -142,14 +150,20 @@ planets.initNodes = function(figure, id) {
             figure[PLANETS.jupiter] = createNode(m, planets_components.jupiter, PLANETS.signature, null);
             break;
 
-	    case PLANETS.signature:
-		    figure[PLANETS.signature] = createNode(m, planets_components.signature, null, null);
-		    break;
+        case PLANETS.signature:
+    		    figure[PLANETS.signature] = createNode(m, planets_components.signature, PLANETS.reflectcube, null);
+    		    break;
+
+        case PLANETS.reflectcube:
+            figure[PLANETS.reflectcube] = createNode(m, planets_components.reflect_cube, null, null);
+            break;
     }
 }
 
 // --- animation
 var angle = new Array(Object.keys(PLANETS).length);
+var i = 0;
+for(i = 0; i < angle.length; i++) {angle[i] = 0;}
 
 function getAngle(code) {
     return angle[code];

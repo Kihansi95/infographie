@@ -23,6 +23,7 @@ var aTexCoordmap;
 var uProjectionmap;
 var uModelviewmap;
 var uNormalMatrixmap;
+var uMinvmap;
 var uSkybox;
 
 // Location of the coords attribute variable in the shader program used for texturing the environment box.
@@ -44,14 +45,15 @@ var projection;             //--- projection matrix
 var modelview;              // modelview matrix
 var flattenedmodelview;     //--- flattened modelview matrix
 
+var Minv = mat3();  // matrix inverse of modelview
+
 var normalMatrix = mat3();  //--- create a 3X3 matrix that will affect normals
 
 var rotator;   // A SimpleRotator object to enable rotation by mouse dragging.
 
-var prog;  // shader program identifier
+var prog, progbox;  // shader program identifier
 
 var  envbox;  // model identifiers
-var  progbox;  // shader program skybox
 
 var lightPosition = vec4(20.0, 20.0, 100.0, 1.0);
 
@@ -65,6 +67,9 @@ var materialSpecular = vec4(0.48, 0.55, 0.69, 1.0);
 var materialShininess = 100.0;
 
 var ambientProduct, diffuseProduct, specularProduct;
+
+// TODO need to refactoring
+var initialmodelview;
 
 function unflatten(matrix) {
     var result = mat4();
@@ -143,12 +148,11 @@ function createModelbox(modelData) {
 		gl.vertexAttribPointer(aCoordsbox, 3, gl.FLOAT, false, 0, 0);
 		gl.uniformMatrix4fv(uModelviewbox, false, flatten(modelview));
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-		gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
+
+  	gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
 	}
 	return model;
 }
-
-
 
 function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
     var vsh = gl.createShader(gl.VERTEX_SHADER);
@@ -193,27 +197,28 @@ function render(){
     gl.clear( gl.COLOR_BUFFER_BIT );
 
     if (ntextures_loaded == ntextures_tobeloaded) {
+      initialmodelview = modelview;
 
-    	// TODO SKYBOX
 	    // Draw the environment (box)
-	    // gl.useProgram(progbox); // Select the shader program that is used for the environment box.
-	    //
-	    // gl.uniformMatrix4fv(uProjectionbox, false, flatten(projection));
-	    //
-	    // gl.enableVertexAttribArray(aCoordsbox);
-	    // gl.disableVertexAttribArray(aNormalbox);     // normals are not used for the box
-	    // gl.disableVertexAttribArray(aTexCoordbox);  // texture coordinates not used for the box
-	    //
-	    // setEnvTexture();
-	    // envbox.render();
+	    gl.useProgram(progbox); // Select the shader program that is used for the environment box.
+
+	    gl.uniformMatrix4fv(uProjectionbox, false, flatten(projection));
+
+	    gl.enableVertexAttribArray(aCoordsbox);
+	    gl.disableVertexAttribArray(aNormalbox);     // normals are not used for the box
+	    gl.disableVertexAttribArray(aTexCoordbox);  // texture coordinates not used for the box
+
+      // bind texture of skybox
+	    setEnvTexture(BOX_TEXTURE.SKYBOX);
+	    envbox.render();
 
 	    gl.useProgram(prog);
 
 	    // draw spacecraft and the planets
-        traverse(spacecraft, SPACECRAFT.controlCenter);
-        traverse(planets, PLANETS.earth);
+      // traverse(spacecraft, SPACECRAFT.controlCenter);
+      traverse(planets, PLANETS.reflectcube);
 
-        requestAnimFrame( render );
+      requestAnimFrame( render );
 
     }
 };
@@ -229,25 +234,28 @@ window.onload = function init() {
             throw "Could not create WebGL context.";
         }
 
-	    // TODO SKYBOX
+        // LOAD SHADER (for the environment)
+        var vertexShaderSource = getTextContent("vshaderbox");
+        var fragmentShaderSource = getTextContent("fshaderbox");
+        progbox = createProgram(gl, vertexShaderSource, fragmentShaderSource);
+
+        gl.useProgram(progbox);
+
+        aCoordsbox = gl.getAttribLocation(progbox, "vcoords");
+        aNormalbox = gl.getAttribLocation(progbox, "vnormal");
+        aTexCoordbox = gl.getAttribLocation(progbox, "vtexcoord");
+
+        uModelviewbox = gl.getUniformLocation(progbox, "modelview");
+        uProjectionbox = gl.getUniformLocation(progbox, "projection");
+
+        uEnvbox = gl.getUniformLocation(progbox, "envbox");
+
+        gl.enable(gl.DEPTH_TEST);
 
         // LOAD SHADER (standard texture mapping)
         var vertexShaderSource = getTextContent("vshader");
         var fragmentShaderSource = getTextContent("fshader");
         prog = createProgram(gl, vertexShaderSource, fragmentShaderSource);
-
-	    // LOAD SHADER (for the environment)
-	    var vertexShaderSource = getTextContent("vshaderbox");
-	    var fragmentShaderSource = getTextContent("fshaderbox");
-	    progbox = createProgram(gl, vertexShaderSource, fragmentShaderSource);
-
-	    gl.useProgram(progbox);
-
-	    uEnvbox = gl.getUniformLocation(progbox, "skybox");
-
-	    gl.enable(gl.DEPTH_TEST);
-
-	    initTexture();
 
         gl.useProgram(prog);
 
@@ -260,15 +268,16 @@ window.onload = function init() {
         ProjectionLoc = gl.getUniformLocation(prog, "projection");
         NormalMatrixLoc = gl.getUniformLocation(prog, "normalMatrix");
 
-        uEnvbox = gl.getUniformLocation(progbox, "skybox");
-
-	    alphaLoc = gl.getUniformLocation(prog, "alpha");
+	      alphaLoc = gl.getUniformLocation(prog, "alpha");
+        uSkybox = gl.getUniformLocation(prog, "skybox");
 
         gl.enableVertexAttribArray(CoordsLoc);
         gl.enableVertexAttribArray(NormalLoc);
         gl.disableVertexAttribArray(TexCoordLoc);  // we do not need texture coordinates
 
         gl.enable(gl.DEPTH_TEST);
+
+        initTexture();
 
         //  create a "rotator" monitoring mouse mouvement
         // rotator = new SimpleRotator(canvas, render);
@@ -288,7 +297,7 @@ window.onload = function init() {
 
         gl.uniform4fv(gl.getUniformLocation(prog, "lightPosition"), flatten(lightPosition));
 
-        projection = perspective(70.0, 1.0, 1.0, 200.0);
+        projection = perspective(70.0, 1.0, 1.0, 2000.0);
         gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));  // send projection matrix to the shader program
 
 	    // initialize the model
@@ -299,8 +308,7 @@ window.onload = function init() {
         planets.build();
 
         // create the environment
-	    // TODO SKYBOX
-        // envbox = createModelbox(cube(1000.0));
+        envbox = createModelbox(cube(1000.0));
     }
     catch (e) {
         console.log(e);

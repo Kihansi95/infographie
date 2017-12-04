@@ -56,7 +56,7 @@ var BOX_TEXTURE = {
 };
 // config for skybox
 var ct = 0;
-var box_texture;
+var box_texture = [];
 var skybox_img = new Array(6);
 var SKYBOX_TEXTURE_SRC = [
 	"img/skybox/nebula_posx.png",   "img/skybox/nebula_negx.png",
@@ -81,11 +81,9 @@ function initTexture() {
     });
 
     // now load the sky box texture and bind it to skybox_texture
-	box_texture = gl.createTexture();
-
 	Object.keys(BOX_TEXTURE).forEach(function(code) {
 		box_texture[BOX_TEXTURE[code]] = gl.createTexture();
-		
+
 		for (var i = 0; i < 6; i++) {
 			skybox_img[i] = new Image();
 			skybox_img[i].onload = function () {  // this function is called when the image download is complete
@@ -94,10 +92,10 @@ function initTexture() {
 			skybox_img[i].src = SKYBOX_TEXTURE_SRC[i];   // this line starts the image downloading thread
 			ntextures_tobeloaded++;
 		}
-		
+
 	})
-	
-	
+
+
 }
 
 // private
@@ -127,7 +125,7 @@ function handleLoadedTextureMap(texture) {
 			gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
 			gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
 		];
-		
+
 		for (var j = 0; j < 6; j++) {
 			gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skybox_img[j]);
 			gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -136,9 +134,9 @@ function handleLoadedTextureMap(texture) {
 		gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
 
 		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-		
+
 	}
-	
+
 	render();  // Call render function when the image has been loaded (to insure the model is displayed)
 }
 
@@ -159,13 +157,13 @@ function setTexture(code) {
     // disable TexCoordLoc when absent texture.
     // toggle boolean hasTexture so that fragment shader can generate object
     if(typeof code === 'undefined' || code === null) {
-        gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), false);
+        // gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), 0);
         gl.disableVertexAttribArray(TexCoordLoc);
     } else {
         gl.activeTexture(gl['TEXTURE'+code]);
         gl.bindTexture(gl.TEXTURE_2D, textures[code]);
         gl.uniform1i(gl.getUniformLocation(prog, "texture"), code);         // send texture to sampler
-        gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), true);
+        // gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), 1);
         gl.enableVertexAttribArray(TexCoordLoc);
     }
 }
@@ -173,16 +171,27 @@ function setTexture(code) {
 function setEnvTexture(code) {
 	var index = Object.keys(TEXTURE).length + code;
 	gl.activeTexture(gl['TEXTURE'+index]);
-	gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox_texture[code]);
+	gl.bindTexture(gl.TEXTURE_CUBE_MAP, box_texture[code]);
 	gl.uniform1i(uEnvbox, index);
 }
 
+function setMapTexture(code) {
+  var index = Object.keys(TEXTURE).length + code;
+	gl.activeTexture(gl['TEXTURE'+index]);
+	gl.bindTexture(gl.TEXTURE_CUBE_MAP, box_texture[code]);
+	gl.uniform1i(uSkybox, index);
+}
+
+function sethasTexture(integer) {
+  gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), integer);
+}
+
 function setTranslucent(degree) {
-	
+
 	function clamp(value, min, max) {
 		return Math.min(Math.max(value, min), max);
 	}
-	
+
 	gl.uniform1f(alphaLoc, clamp(degree, 0, 1));
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	gl.enable(gl.BLEND);
