@@ -24,7 +24,9 @@ var TEXTURE = {
     EARTH: 9,
     MOON: 10,
     SATURN: 11,
-    SATURN_RING: 12
+    SATURN_RING: 12,
+	JUPITER: 13,
+	SIGNATURE: 14
 };
 
 var TEXTURE_SRC = {
@@ -44,8 +46,20 @@ var TEXTURE_SRC = {
     EARTH: "img/solarsystem/earth.jpg",
     MOON: "img/solarsystem/moon.jpg",
     SATURN: "img/solarsystem/saturn.jpg",
-    SATURN_RING: "img/solarsystem/saturn_ring.jpg"
+    SATURN_RING: "img/solarsystem/saturn_ring.jpg",
+	JUPITER: "img/solarsystem/jupiter.jpg",
+	SIGNATURE: "img/solarsystem/signature.gif"
 };
+
+// config for skybox
+var ct = 0;
+var skybox_texture;
+var skybox_img = new Array(6);
+var SKYBOX_TEXTURE_SRC = [
+	"img/skybox/nebula_posx.png",   "img/skybox/nebula_negx.png",
+	"img/skybox/nebula_posy.png",   "img/skybox/nebula_negy.png",
+	"img/skybox/nebula_posz.png",   "img/skybox/nebula_negz.png"
+];
 
 // only used in main js
 function initTexture() {
@@ -56,16 +70,28 @@ function initTexture() {
 
         textures[TEXTURE[component]].image = new Image();
         textures[TEXTURE[component]].image.onload = function () {
-            handleLoadedTexture(textures[TEXTURE[component]], component)
-        }
+            handleLoadedTexture(textures[TEXTURE[component]])
+        };
 
         textures[TEXTURE[component]].image.src = TEXTURE_SRC[component];
         ntextures_tobeloaded++;
-    })
+    });
+
+    // now load the sky box texture and bind it to skybox_texture
+	skybox_texture = gl.createTexture();
+
+	for (var i = 0; i < 6; i++) {
+		skybox_img[i] = new Image();
+		skybox_img[i].onload = function () {  // this function is called when the image download is complete
+			handleLoadedTextureMap(skybox_texture);
+		};
+		skybox_img[i].src = SKYBOX_TEXTURE_SRC[i];   // this line starts the image downloading thread
+		ntextures_tobeloaded++;
+	}
 }
 
 // private
-function handleLoadedTexture(texture, component) {
+function handleLoadedTexture(texture) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
@@ -77,6 +103,35 @@ function handleLoadedTexture(texture, component) {
     render();  // Call render function when the image has been loaded (to insure the model is displayed)
 
     gl.bindTexture(gl.TEXTURE_2D, null);
+}
+
+function handleLoadedTextureMap(texture) {
+
+	ct++;
+	ntextures_loaded++;
+	if (ct == 6) {
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+		var targets = [
+			gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+			gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+			gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
+		];
+		
+		console.log(skybox_img);
+		
+		for (var j = 0; j < 6; j++) {
+			gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skybox_img[j]);
+			gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		}
+		gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+		
+	}
+	
+	render();  // Call render function when the image has been loaded (to insure the model is displayed)
 }
 
 /**
@@ -105,6 +160,29 @@ function setTexture(code) {
         gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), true);
         gl.enableVertexAttribArray(TexCoordLoc);
     }
+}
 
+function setEnvTexture() {
+	var last_index = Object.keys(TEXTURE).length;
+	gl.activeTexture(gl['TEXTURE'+last_index]);
+	gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox_texture);
+	gl.uniform1i(uEnvbox, last_index);
+}
 
+function setTranslucent(degree) {
+	
+	function clamp(value, min, max) {
+		return Math.min(Math.max(value, min), max);
+	}
+	
+	gl.uniform1f(alphaLoc, clamp(degree, 0, 1));
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	gl.enable(gl.BLEND);
+	gl.depthMask(false);
+}
+
+function cleanTranslucent() {
+	gl.uniform1f(alphaLoc, 1.0);
+	gl.disable(gl.BLEND);
+	gl.depthMask(true);
 }

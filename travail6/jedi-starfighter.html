@@ -4,7 +4,40 @@
 
 <title>WebGL - Projet de conception</title>
 
+    <script type="x-shader/x-vertex" id="vshaderbox">
+        uniform mat4 projection;
+        uniform mat4 modelview;
 
+        attribute vec3 vcoords;
+        attribute vec3 vnormal;
+        attribute vec2 vtexcoord;
+
+        varying vec3 fCoords;
+
+        void main() {
+            vec2 tmp = vtexcoord;
+            vec3 tmp2 = vnormal;
+            // inserted only to map texcoord and normal in this shader
+            // (required since models uses texture coordinates even though
+            //   we will not use them in this shader)
+
+            vec4 eyeCoords = modelview * vec4(vcoords,1.0);
+            gl_Position = projection * eyeCoords;
+            fCoords = vcoords;  // les sommets du cube positionnés à -500 ou +500,
+                                // on devrait ici diviser par 500 mais textureCube() s'en accommode !!!
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fshaderbox">
+     precision mediump float;
+
+     varying vec3 fCoords;
+
+     uniform samplerCube skybox;
+
+     void main() {
+          gl_FragColor = textureCube(skybox, fCoords);
+     }
+</script>
 
 
 <script type="x-shader/x-vertex" id="vshader">
@@ -62,6 +95,8 @@
      uniform sampler2D texture;
      uniform bool hasTexture;
 
+     uniform float alpha;
+
      void main() {
 
           vec4 Color;
@@ -79,7 +114,7 @@
               specular = vec4(0.0, 0.0, 0.0, 1.0);
 
           Color = ambient + diffuse + specular;
-          Color.a = 1.0;
+          Color.a = alpha;
 
           if(hasTexture) {
               gl_FragColor = Color * texture2D( texture, fTexCoord );
@@ -102,7 +137,6 @@
     <!-- /custom -->
 
     <!-- project -->
-    <script type="text/javascript" src="js/animation.js"></script>
     <script type="text/javascript" src="js/texture.js"></script>
     <script type="text/javascript" src="js/models.js"></script>
     <script type="text/javascript" src="js/phong-color.js"></script>

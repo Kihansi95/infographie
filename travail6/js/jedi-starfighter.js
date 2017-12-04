@@ -9,24 +9,38 @@
 
 var gl;   // The webgl context.
 
-var CoordsLoc;       // Location of the coords attribute variable in the standard texture mappping shader program.
+// Location of the coords attribute variable in the standard texture mappping shader program.
+var CoordsLoc;
 var NormalLoc;
 var TexCoordLoc;
 
-var ProjectionLoc;     // Location of the uniform variables in the standard texture mappping shader program.
+// Location of the coords attribute variable in the shader program used for texturing the environment box.
+var aCoordsbox;
+var aNormalbox;
+var aTexCoordbox;
+
+var uModelviewbox;
+var uProjectionbox;
+var uEnvbox;
+
+// Location of the uniform variables in the standard texture mappping shader program.
+var ProjectionLoc;
 var ModelviewLoc;
 var NormalMatrixLoc;
+var alphaLoc;
 
-
-var projection;   //--- projection matrix
-var modelview;    // modelview matrix
-var flattenedmodelview;    //--- flattened modelview matrix
+var projection;             //--- projection matrix
+var modelview;              // modelview matrix
+var flattenedmodelview;     //--- flattened modelview matrix
 
 var normalMatrix = mat3();  //--- create a 3X3 matrix that will affect normals
 
 var rotator;   // A SimpleRotator object to enable rotation by mouse dragging.
 
 var prog;  // shader program identifier
+
+var  envbox;  // model identifiers
+var  progbox;  // shader program skybox
 
 var lightPosition = vec4(20.0, 20.0, 100.0, 1.0);
 
@@ -101,6 +115,28 @@ function matrixinvert(matrix) {
     return result;
 }
 
+// For creating the environment box.
+function createModelbox(modelData) {
+	var model = {};
+	model.coordsBuffer = gl.createBuffer();
+	model.indexBuffer = gl.createBuffer();
+	model.count = modelData.indices.length;
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.coordsBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexPositions, gl.STATIC_DRAW);
+	console.log(modelData.vertexPositions.length);
+	console.log(modelData.indices.length);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, modelData.indices, gl.STATIC_DRAW);
+	model.render = function () {
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.coordsBuffer);
+		gl.vertexAttribPointer(aCoordsbox, 3, gl.FLOAT, false, 0, 0);
+		gl.uniformMatrix4fv(uModelviewbox, false, flatten(modelview));
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+		gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
+	}
+	return model;
+}
+
 function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
     var vsh = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vsh, vertexShaderSource);
@@ -137,8 +173,7 @@ function getTextContent(elementID) {
     return str;
 }
 
-var task = null;
-var render = function() {
+function render(){
     flattenedmodelview = rotator.getViewMatrix();
     modelview = unflatten(flattenedmodelview);
 
@@ -146,19 +181,26 @@ var render = function() {
 
     if (ntextures_loaded == ntextures_tobeloaded) {
 
-        // traverse(spacecraft, SPACECRAFT.controlCenter);
+    	// TODO SKYBOX
+	    // Draw the environment (box)
+	    // gl.useProgram(progbox); // Select the shader program that is used for the environment box.
+	    //
+	    // gl.uniformMatrix4fv(uProjectionbox, false, flatten(projection));
+	    //
+	    // gl.enableVertexAttribArray(aCoordsbox);
+	    // gl.disableVertexAttribArray(aNormalbox);     // normals are not used for the box
+	    // gl.disableVertexAttribArray(aTexCoordbox);  // texture coordinates not used for the box
+	    //
+	    // setEnvTexture();
+	    // envbox.render();
+
+	    gl.useProgram(prog);
+	
+	    // draw spacecraft and the planets
+        traverse(spacecraft, SPACECRAFT.controlCenter);
         traverse(planets, PLANETS.earth);
 
-        if(task != null) {
-            clearTimeout(task);
-        }
-
-        task = setTimeout(
-            function () {
-              render();
-            }, 20
-        );
-        //traverse(planets.getFigure(), PLANETS.saturn)
+        requestAnimFrame( render );
 
     }
 };
@@ -173,11 +215,26 @@ window.onload = function init() {
         if (!gl) {
             throw "Could not create WebGL context.";
         }
-
+	
+	    // TODO SKYBOX
+        
         // LOAD SHADER (standard texture mapping)
         var vertexShaderSource = getTextContent("vshader");
         var fragmentShaderSource = getTextContent("fshader");
         prog = createProgram(gl, vertexShaderSource, fragmentShaderSource);
+
+	    // LOAD SHADER (for the environment)
+	    var vertexShaderSource = getTextContent("vshaderbox");
+	    var fragmentShaderSource = getTextContent("fshaderbox");
+	    progbox = createProgram(gl, vertexShaderSource, fragmentShaderSource);
+
+	    gl.useProgram(progbox);
+
+	    uEnvbox = gl.getUniformLocation(progbox, "skybox");
+
+	    gl.enable(gl.DEPTH_TEST);
+
+	    initTexture();
 
         gl.useProgram(prog);
 
@@ -189,15 +246,18 @@ window.onload = function init() {
         ModelviewLoc = gl.getUniformLocation(prog, "modelview");
         ProjectionLoc = gl.getUniformLocation(prog, "projection");
         NormalMatrixLoc = gl.getUniformLocation(prog, "normalMatrix");
+	
+	    alphaLoc = gl.getUniformLocation(prog, "alpha");
 
         gl.enableVertexAttribArray(CoordsLoc);
         gl.enableVertexAttribArray(NormalLoc);
-		    gl.disableVertexAttribArray(TexCoordLoc);  // we do not need texture coordinates
+        gl.disableVertexAttribArray(TexCoordLoc);  // we do not need texture coordinates
 
         gl.enable(gl.DEPTH_TEST);
 
         //  create a "rotator" monitoring mouse mouvement
-        rotator = new SimpleRotator(canvas, render);
+        // rotator = new SimpleRotator(canvas, render);
+        rotator = new SimpleRotator(canvas);
         //  set initial camera position at z=40, with an "up" vector aligned with y axis
         //   (this defines the initial value of the modelview matrix )
         rotator.setView([0, 0, 1], [0, 1, 0], 40);
@@ -206,22 +266,26 @@ window.onload = function init() {
         diffuseProduct = mult(lightDiffuse, materialDiffuse);
         specularProduct = mult(lightSpecular, materialSpecular);
 
-    		gl.uniform4fv(gl.getUniformLocation(prog, "ambientProduct"), flatten(ambientProduct));
-    		gl.uniform4fv(gl.getUniformLocation(prog, "diffuseProduct"), flatten(diffuseProduct));
-    		gl.uniform4fv(gl.getUniformLocation(prog, "specularProduct"), flatten(specularProduct));
-    		gl.uniform1f(gl.getUniformLocation(prog, "shininess"), materialShininess);
+        gl.uniform4fv(gl.getUniformLocation(prog, "ambientProduct"), flatten(ambientProduct));
+        gl.uniform4fv(gl.getUniformLocation(prog, "diffuseProduct"), flatten(diffuseProduct));
+        gl.uniform4fv(gl.getUniformLocation(prog, "specularProduct"), flatten(specularProduct));
+        gl.uniform1f(gl.getUniformLocation(prog, "shininess"), materialShininess);
 
-    		gl.uniform4fv(gl.getUniformLocation(prog, "lightPosition"), flatten(lightPosition));
+        gl.uniform4fv(gl.getUniformLocation(prog, "lightPosition"), flatten(lightPosition));
 
-    		projection = perspective(70.0, 1.0, 1.0, 200.0);
-    		gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));  // send projection matrix to the shader program
+        projection = perspective(70.0, 1.0, 1.0, 200.0);
+        gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));  // send projection matrix to the shader program
 
-    		// initialize the model
+	    // initialize the model
         initModel();
 
         // build the spacecraft
         spacecraft.build();
         planets.build();
+        
+        // create the environment
+	    // TODO SKYBOX
+        // envbox = createModelbox(cube(1000.0));
     }
     catch (e) {
         console.log(e);

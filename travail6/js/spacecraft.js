@@ -281,10 +281,10 @@ var component = {
 
 };
 
-spacecraft.initNodes = function(figure, Id) {
+spacecraft.initNodes = function(figure, id) {
     var m = mat4();
 
-    switch (Id) {
+    switch (id) {
 
         // central
         case SPACECRAFT.controlCenter:
