@@ -6,7 +6,7 @@ var ntextures_loaded=0;
 // store texture
 var textures = [];
 
-// enum texture aka. code texture
+// enum (code) texture
 var TEXTURE = {
 
     // spacecraft
@@ -51,9 +51,12 @@ var TEXTURE_SRC = {
 	SIGNATURE: "img/solarsystem/signature.gif"
 };
 
+var BOX_TEXTURE = {
+	SKYBOX: 0
+};
 // config for skybox
 var ct = 0;
-var skybox_texture;
+var box_texture;
 var skybox_img = new Array(6);
 var SKYBOX_TEXTURE_SRC = [
 	"img/skybox/nebula_posx.png",   "img/skybox/nebula_negx.png",
@@ -65,29 +68,36 @@ var SKYBOX_TEXTURE_SRC = [
 function initTexture() {
 
     // iterate all the texture list to load image
-    Object.keys(TEXTURE).forEach(function(component) {
-        textures[TEXTURE[component]] = gl.createTexture();
+    Object.keys(TEXTURE).forEach(function(code) {
+        textures[TEXTURE[code]] = gl.createTexture();
 
-        textures[TEXTURE[component]].image = new Image();
-        textures[TEXTURE[component]].image.onload = function () {
-            handleLoadedTexture(textures[TEXTURE[component]])
+        textures[TEXTURE[code]].image = new Image();
+        textures[TEXTURE[code]].image.onload = function () {
+            handleLoadedTexture(textures[TEXTURE[code]])
         };
 
-        textures[TEXTURE[component]].image.src = TEXTURE_SRC[component];
+        textures[TEXTURE[code]].image.src = TEXTURE_SRC[code];
         ntextures_tobeloaded++;
     });
 
     // now load the sky box texture and bind it to skybox_texture
-	skybox_texture = gl.createTexture();
+	box_texture = gl.createTexture();
 
-	for (var i = 0; i < 6; i++) {
-		skybox_img[i] = new Image();
-		skybox_img[i].onload = function () {  // this function is called when the image download is complete
-			handleLoadedTextureMap(skybox_texture);
-		};
-		skybox_img[i].src = SKYBOX_TEXTURE_SRC[i];   // this line starts the image downloading thread
-		ntextures_tobeloaded++;
-	}
+	Object.keys(BOX_TEXTURE).forEach(function(code) {
+		box_texture[BOX_TEXTURE[code]] = gl.createTexture();
+		
+		for (var i = 0; i < 6; i++) {
+			skybox_img[i] = new Image();
+			skybox_img[i].onload = function () {  // this function is called when the image download is complete
+				handleLoadedTextureMap(box_texture[BOX_TEXTURE[code]]);
+			};
+			skybox_img[i].src = SKYBOX_TEXTURE_SRC[i];   // this line starts the image downloading thread
+			ntextures_tobeloaded++;
+		}
+		
+	})
+	
+	
 }
 
 // private
@@ -117,8 +127,6 @@ function handleLoadedTextureMap(texture) {
 			gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
 			gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
 		];
-		
-		console.log(skybox_img);
 		
 		for (var j = 0; j < 6; j++) {
 			gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skybox_img[j]);
@@ -162,11 +170,11 @@ function setTexture(code) {
     }
 }
 
-function setEnvTexture() {
-	var last_index = Object.keys(TEXTURE).length;
-	gl.activeTexture(gl['TEXTURE'+last_index]);
-	gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox_texture);
-	gl.uniform1i(uEnvbox, last_index);
+function setEnvTexture(code) {
+	var index = Object.keys(TEXTURE).length + code;
+	gl.activeTexture(gl['TEXTURE'+index]);
+	gl.bindTexture(gl.TEXTURE_CUBE_MAP, skybox_texture[code]);
+	gl.uniform1i(uEnvbox, index);
 }
 
 function setTranslucent(degree) {
