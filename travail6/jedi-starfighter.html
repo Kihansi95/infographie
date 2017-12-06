@@ -28,16 +28,16 @@
         }
     </script>
     <script type="x-shader/x-fragment" id="fshaderbox">
-     precision mediump float;
+         precision mediump float;
 
-     varying vec3 fCoords;
+         varying vec3 fCoords;
 
-     uniform samplerCube envbox;
+         uniform samplerCube envbox;
 
-     void main() {
-          gl_FragColor = textureCube(envbox, fCoords);
-     }
-</script>
+         void main() {
+              gl_FragColor = textureCube(envbox, fCoords);
+         }
+    </script>
 
 
 <script type="x-shader/x-vertex" id="vshader">
@@ -53,8 +53,6 @@
      varying vec3 fN, fL, fE;
      varying vec3 fviewCoords;
      varying vec2 fTexCoord;
-
-     varying vec3 fNormal;  // for reflect
 
      void main() {
         vec4 eyeCoords = modelview * vec4(vcoords,1.0);
@@ -78,7 +76,6 @@
 
         fviewCoords = eyeCoords.xyz;
         fTexCoord = vtexcoord;
-        fNormal = vnormal;  // transfernormal to fragment shader
      }
 </script>
 
@@ -165,6 +162,10 @@
      uniform mat3 normalMatrix;
      uniform mat3 minv;
 
+     // color map
+     uniform vec4 ambientProduct;
+     uniform float alpha;
+
      void main() {
           vec3 N = normalMatrix * fNormal;
           vec3 V = -fviewCoords;
@@ -204,7 +205,10 @@
 
 <h1>Projet infographie: Delta-7 Aethersprite-class light interceptor</h1>
 <pre>The model is in this link: <a href="https://vignette.wikia.nocookie.net/starwars/images/7/79/Jedi_Starfighter_EpII.png">https://vignette.wikia.nocookie.net/starwars/images/7/79/Jedi_Starfighter_EpII.png</a></pre>
-<h2></h2>
+<h3>Author: NGUYEN Duc Hau</h3>
+<h2>Instructions: </h2>
+<p>Move the camera forward/backward (<strong>arrow up/down</strong>), horizontally left/right (<strong>arrow left/right</strong>) and verticaly up/down (<strong>Ctrl + arrow up/down</strong>)</p>
+<p>Click and drag the mouse to change the camera's vision angle</p>
 <noscript>&lt;hr&gt;&lt;h3&gt;This page requires Javascript and a web browser that supports WebGL&lt;/h3&gt;&lt;hr&gt;</noscript>
 
 

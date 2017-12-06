@@ -135,7 +135,7 @@ var planets_components = {
   		  modelview = mult(modelview, scale4(10, 10, 10));
 
   	    setMapTexture(BOX_TEXTURE.SKYBOX);
-  	    reflect.render();
+  	    m_reflect_cube.render();
 
         // switch back just in case we draw something else
         switchProgram(PROGRAM.PROG);
@@ -163,8 +163,7 @@ planets.initNodes = function(figure, id) {
             break;
 
         case PLANETS.signature:
-    		    figure[PLANETS.signature] = createNode(m, planets_components.signature, null, null);
-    		    // figure[PLANETS.signature] = createNode(m, planets_components.signature, PLANETS.reflectcube, null);
+    		    figure[PLANETS.signature] = createNode(m, planets_components.signature, PLANETS.reflectcube, null);
     		    break;
 
         case PLANETS.reflectcube:

@@ -30,7 +30,8 @@ function initModel() {
     triangleprism = createModel(uvCylinder(1,1, 3, false, false ));
 
     // create the env reflect box model
-    reflect = createModelmap(cube(1));
+    m_reflect_cube = createModelmap(cube(1));
+    m_reflect_hemisphere = createModelmap(uvHemisphereOutside(1,32,16));
 
     // create the environment
     envbox = createModelbox(cube(1000.0));

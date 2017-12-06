@@ -98,9 +98,8 @@ var component = {
             modelview = mult(modelview, scale4(.5, .5, 2.3));
 
             // skin
-            // setColor(110, 53, 50);
             setAmbient(110, 53, 50);
-            setDiffuse(0,0,0);
+            setDiffuse(110, 53, 50);
             setSpecular(0,0,0);
 
             setTexture();
@@ -161,9 +160,8 @@ var component = {
 
             //skin
             setTexture();
-            // setColor(22, 109, 144);
             setAmbient(22, 109, 144);
-            setDiffuse(0,0,0);
+            setDiffuse(22, 109, 144);
             setSpecular(0,0,0);
 
             cylinder_non_top_insdide.render();
@@ -204,6 +202,9 @@ var component = {
 
     control_room: {
         render: function () {
+
+            switchProgram(PROGRAM.PROG_MAP);
+
             modelview = mult(modelview, translate(0, 1, -1));
             modelview = mult(modelview, rotate(97, 1, 0, 0));
             normalMatrix = extractNormalMatrix(modelview);  // faire avant scale
@@ -212,18 +213,20 @@ var component = {
                 component.control_center.attr.height));
 
             // skin
-            setColor(19, 19, 14);
-            setTexture();
+            // setColor(19, 19, 14);
+            // setTexture();
+            setMapTexture(BOX_TEXTURE.SKYBOX);
 
-            hemisphere.render();
+            m_reflect_hemisphere.render();
 
             // remise
-            cleanColor();
+            // cleanColor();
             modelview = mult(modelview, scale4(
                 1 / component.control_center.attr.width, 1 / 6,
                 1 / component.control_center.attr.height));
             modelview = mult(modelview, rotate(-97, 1, 0, 0));
 
+            switchProgram(PROGRAM.PROG);
         }
     },
 

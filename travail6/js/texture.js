@@ -59,19 +59,19 @@ var ct = 0;
 var box_texture = [];
 var skybox_img = new Array(6);
 var SKYBOX_TEXTURE_SRC = [
-	// "img/skybox/nebula_posx.png",
-	// "img/skybox/nebula_posy.png",
-	// "img/skybox/nebula_posz.png",
-	// "img/skybox/nebula_negx.png",
-	// "img/skybox/nebula_negy.png",
-	// "img/skybox/nebula_negz.png"
+	"img/skybox/nebula_posx.png",
+	"img/skybox/nebula_posy.png",
+	"img/skybox/nebula_posz.png",
+	"img/skybox/nebula_negx.png",
+	"img/skybox/nebula_negy.png",
+	"img/skybox/nebula_negz.png"
 
-	"img/ciel-nuages/posx.jpg",
-	"img/ciel-nuages/posy.jpg",
-	"img/ciel-nuages/posz.jpg",
-	"img/ciel-nuages/negx.jpg",
-	"img/ciel-nuages/negy.jpg",
-	"img/ciel-nuages/negz.jpg"
+	// "img/ciel-nuages/posx.jpg",
+	// "img/ciel-nuages/posy.jpg",
+	// "img/ciel-nuages/posz.jpg",
+	// "img/ciel-nuages/negx.jpg",
+	// "img/ciel-nuages/negy.jpg",
+	// "img/ciel-nuages/negz.jpg"
 
 	// "img/solarsystem/signature.gif",
 	// "img/solarsystem/signature.gif",
@@ -174,7 +174,7 @@ function handleLoadedTextureMap(texture) {
  */
 function setTexture(code) {
 
-	// disable TexCoordLoc when absent texture.
+	// disable TexCoordLoc when absent texture.f
 	// toggle boolean hasTexture so that fragment shader can generate object
 	if(typeof code === 'undefined' || code === null) {
 		gl.uniform1i(gl.getUniformLocation(prog, "hasTexture"), false);

@@ -164,6 +164,46 @@ function getTextContent(elementID) {
     return str;
 }
 
+
+var my_position = mat4();
+var my_step = 0.5;
+var ARROW = {
+    LEFT:37,
+    RIGHT: 39,
+    UP: 38,
+    DOWN: 40
+}
+function doKey(evt) {
+    var rotationChanged = true;
+    if(evt.ctrlKey) {
+        switch (evt.keyCode) {
+            case ARROW.UP:
+                my_position = mult(my_position, translate(0, - my_step, 0));
+                break;
+            case ARROW.DOWN:
+                my_position = mult(my_position, translate(0, my_step, 0));
+                break;
+        }
+    }
+
+    switch (evt.keyCode) {
+        case ARROW.LEFT:
+            my_position = mult(my_position, translate(my_step, 0, 0));
+            break;        // left arrow
+        case ARROW.RIGHT:
+            my_position = mult(my_position, translate(- my_step, 0, 0));
+            break;       // right arrow
+        case ARROW.UP:
+            my_position = mult(my_position, translate(0, 0, my_step));
+            break;        // up arrow
+        case ARROW.DOWN:
+            my_position = mult(my_position, translate(0, 0, - my_step));
+            break;        // down arrow
+        default:
+            console.log('key not handle');
+    }
+}
+
 function render(){
     flattenedmodelview = rotator.getViewMatrix();
     modelview = unflatten(flattenedmodelview);
@@ -182,9 +222,10 @@ function render(){
   	    envbox.render();
 
         // Draw the spacecraft
+        modelview = mult(modelview, my_position);
   	    switchProgram(PROGRAM.PROG);
   		  traverse(spacecraft, SPACECRAFT.controlCenter);     // spacecraft
-  		  // traverse(planets, PLANETS.earth);
+  		  traverse(planets, PLANETS.earth);
 
       requestAnimFrame( render );
 
@@ -274,9 +315,7 @@ window.onload = function init() {
         rotator.setView([0, 0, 1], [0, 1, 0], 40);
 
         gl.uniform4fv(gl.getUniformLocation(prog, "lightPosition"), flatten(lightPosition));
-
-
-        gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));  // send projection matrix to the shader program
+        gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));
 
         // initialize the model
         initModel();
@@ -294,6 +333,8 @@ window.onload = function init() {
 
     // Initialize a texture
     initTexture();
+
+    document.addEventListener("keydown", doKey, false);
 
     render();
 };
