@@ -161,7 +161,7 @@ function uvPentagonPrism(hasBottom, backSide, frontSide, left, right, height) {
 
     if(hasBottom) {
         face5([0, 0, 0,      0, 0, l,    s, 0, l,    b, 0, r,    b, 0, 0], [0,-1,0], [0,0, 0,1, s/b,1, 1, r/l, 1, 0], context); // downner
-        face5([0, h, 0,      0, h, l,    s, h, l,    b, h, r,    b, h, 0], [0,-1,0], [0,0, 0,1, s/b,1, 1, r/l, 1, 0], context); // upper
+        face5([0, h, 0,      0, h, l,    s, h, l,    b, h, r,    b, h, 0], [0,1,0], [0,0, 0,1, s/b,1, 1, r/l, 1, 0], context); // upper
     }
 
     return flatternContext(context);

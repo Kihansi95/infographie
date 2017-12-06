@@ -12,8 +12,6 @@ function initModel() {
     squareTetra = createModel(uvSquareTetrahedron(1, 1, 1 ));
     hemicone = createModel(uvQuartersphereOutside(1, 25, 1));
 
-    // hemicone = createModel(uvHemiCone(2, 3, 25, true)); TODO build the new form of control center here
-
     cylinder = createModel(uvCylinder(1,1,32.0, false, false ));
 
     cylinder_non_top_insdide = createModel(uvCylinderInside(1,1,32.0, false, true ));
@@ -31,7 +29,11 @@ function initModel() {
 
     triangleprism = createModel(uvCylinder(1,1, 3, false, false ));
 
+    // create the env reflect box model
     reflect = createModelmap(cube(1));
+
+    // create the environment
+    envbox = createModelbox(cube(1000.0));
 }
 
 function createModel(modelData) {
@@ -64,7 +66,7 @@ function createModel(modelData) {
 
         gl.uniformMatrix4fv(ModelviewLoc, false, flatten(modelview));           //--- load flattened modelview matrix
         gl.uniformMatrix3fv(NormalMatrixLoc, false, flatten(normalMatrix));     //--- load flattened normal matrix
-	    
+
         gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
     };
 
@@ -77,28 +79,28 @@ function createModelmap(modelData) {
 	model.normalBuffer = gl.createBuffer();
 	model.indexBuffer = gl.createBuffer();
 	model.count = modelData.indices.length;
-	
+
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.coordsBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexPositions, gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexNormals, gl.STATIC_DRAW);
-	
+
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, modelData.indices, gl.STATIC_DRAW);
-	
+
 	model.render = function () {
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.coordsBuffer);
 		gl.vertexAttribPointer(aCoordsmap, 3, gl.FLOAT, false, 0, 0);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
 		gl.vertexAttribPointer(aNormalmap, 3, gl.FLOAT, false, 0, 0);
-		
+
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-		
+
 		gl.uniformMatrix4fv(uModelviewmap, false, flatten(modelview));    //--- load flattened modelview matrix
 		gl.uniformMatrix3fv(uNormalMatrixmap, false, flatten(normalMatrix));  //--- load flattened normal matrix
-		
+
 		gl.uniformMatrix3fv(uMinvmap, false, flatten(Minv));  // send matrix inverse of modelview in order to rotate the skybox
-		
+
 		gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
 	};
 	return model;
@@ -121,7 +123,7 @@ function createModelbox(modelData) {
 		gl.vertexAttribPointer(aCoordsbox, 3, gl.FLOAT, false, 0, 0);
 		gl.uniformMatrix4fv(uModelviewbox, false, flatten(modelview));
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-		
+
 		gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
 	};
 	return model;

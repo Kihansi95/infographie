@@ -68,9 +68,6 @@ var materialShininess = 100.0;
 
 var ambientProduct, diffuseProduct, specularProduct;
 
-// TODO need to refactoring
-var initialmodelview;
-
 function unflatten(matrix) {
     var result = mat4();
     result[0][0] = matrix[0]; result[1][0] = matrix[1]; result[2][0] = matrix[2]; result[3][0] = matrix[3];
@@ -174,35 +171,22 @@ function render(){
     gl.clear( gl.COLOR_BUFFER_BIT );
 
     if (ntextures_loaded == ntextures_tobeloaded) {
-        initialmodelview = modelview;
 
-        /*
-        
-	    // Draw the environment (box)
-	    gl.useProgram(progbox); // Select the shader program that is used for the environment box.
-     
-	    gl.enableVertexAttribArray(aCoordsbox);
-	    gl.disableVertexAttribArray(aNormalbox);     // normals are not used for the box
-	    gl.disableVertexAttribArray(aTexCoordbox);  // texture coordinates not used for the box
+        // set all to default
+        cleanColor();
+        cleanTranslucent();
 
-        // bind texture of skybox
-	    setEnvTexture(BOX_TEXTURE.SKYBOX);
-	    envbox.render();
+  	    // Draw the environment
+  	    switchProgram(PROGRAM.PROG_BOX);
+  	    setEnvTexture(BOX_TEXTURE.SKYBOX);
+  	    envbox.render();
 
-		*/
+        // Draw the spacecraft
+  	    switchProgram(PROGRAM.PROG);
+  		  traverse(spacecraft, SPACECRAFT.controlCenter);     // spacecraft
+  		  // traverse(planets, PLANETS.earth);
 
-	    gl.useProgram(prog);
-	
-	    gl.enableVertexAttribArray(CoordsLoc);
-	    gl.enableVertexAttribArray(NormalLoc);
-	    gl.enableVertexAttribArray(TexCoordLoc);
-	
-	    // draw spacecraft and the planets
-		traverse(spacecraft, SPACECRAFT.controlCenter);
-		// traverse(planets, PLANETS.reflectcube);
-		// traverse(planets, PLANETS.earth);
-
-        requestAnimFrame( render );
+      requestAnimFrame( render );
 
     }
 };
@@ -217,35 +201,31 @@ window.onload = function init() {
         if (!gl) {
             throw "Could not create WebGL context.";
         }
-	
-	    projection = perspective(70.0, 1.0, 1.0, 2000.0);
-	
-	    // LOAD SHADER  (environmental mapping)
-	    var vertexShaderSourcemap = getTextContent("vshadermap");
-	    var fragmentShaderSourcemap = getTextContent("fshadermap");
-	    progmap = createProgram(gl, vertexShaderSourcemap, fragmentShaderSourcemap);
-	
-	    gl.useProgram(progmap);
-	
-	    // locate variables for further use
-	    aCoordsmap = gl.getAttribLocation(progmap, "vcoords");
-	    aNormalmap = gl.getAttribLocation(progmap, "vnormal");
-	    aTexCoordmap = gl.getAttribLocation(progmap, "vtexcoord");
-	
-	    uModelviewmap = gl.getUniformLocation(progmap, "modelview");
-	    uProjectionmap = gl.getUniformLocation(progmap, "projection");
-	    uNormalMatrixmap = gl.getUniformLocation(progmap, "normalMatrix");
-	    uMinvmap = gl.getUniformLocation(progmap, "minv");
-	
-	    uSkybox = gl.getUniformLocation(progmap, "skybox");
-	
-	    gl.uniformMatrix4fv(uProjectionmap, false, flatten(projection));
-	
-	    gl.enableVertexAttribArray(aCoordsmap);
-	    gl.enableVertexAttribArray(aNormalmap);
-	    gl.disableVertexAttribArray(aTexCoordmap);   // texture coordinates not used (environmental mapping)
-	
-	    // LOAD SHADER (for the environment)
+
+        projection = perspective(70.0, 1.0, 1.0, 2000.0);
+
+        // LOAD SHADER  (environmental mapping)
+        var vertexShaderSourcemap = getTextContent("vshadermap");
+        var fragmentShaderSourcemap = getTextContent("fshadermap");
+        progmap = createProgram(gl, vertexShaderSourcemap, fragmentShaderSourcemap);
+
+        gl.useProgram(progmap);
+
+        // locate variables for further use
+        aCoordsmap = gl.getAttribLocation(progmap, "vcoords");
+        aNormalmap = gl.getAttribLocation(progmap, "vnormal");
+        aTexCoordmap = gl.getAttribLocation(progmap, "vtexcoord");
+
+        uModelviewmap = gl.getUniformLocation(progmap, "modelview");
+        uProjectionmap = gl.getUniformLocation(progmap, "projection");
+        uNormalMatrixmap = gl.getUniformLocation(progmap, "normalMatrix");
+        uMinvmap = gl.getUniformLocation(progmap, "minv");
+
+        uSkybox = gl.getUniformLocation(progmap, "skybox");
+
+        gl.uniformMatrix4fv(uProjectionmap, false, flatten(projection));
+
+        // LOAD SHADER (for the environment)
         var vertexShaderSourceBox = getTextContent("vshaderbox");
         var fragmentShaderSourceBox = getTextContent("fshaderbox");
         progbox = createProgram(gl, vertexShaderSourceBox, fragmentShaderSourceBox);
@@ -260,8 +240,8 @@ window.onload = function init() {
         uProjectionbox = gl.getUniformLocation(progbox, "projection");
 
         uEnvbox = gl.getUniformLocation(progbox, "envbox");
-	
-	    gl.uniformMatrix4fv(uProjectionbox, false, flatten(projection));
+
+        gl.uniformMatrix4fv(uProjectionbox, false, flatten(projection));
 
         gl.enable(gl.DEPTH_TEST);
 
@@ -282,44 +262,28 @@ window.onload = function init() {
         NormalMatrixLoc = gl.getUniformLocation(prog, "normalMatrix");
 
         alphaLoc = gl.getUniformLocation(prog, "alpha");
-
-        gl.enableVertexAttribArray(CoordsLoc);
-        gl.enableVertexAttribArray(NormalLoc);
-
         gl.enable(gl.DEPTH_TEST);
 
         initTexture();
 
         //  create a "rotator" monitoring mouse mouvement
-        // rotator = new SimpleRotator(canvas, render);
         rotator = new SimpleRotator(canvas);
+
         //  set initial camera position at z=40, with an "up" vector aligned with y axis
         //   (this defines the initial value of the modelview matrix )
         rotator.setView([0, 0, 1], [0, 1, 0], 40);
 
-        ambientProduct = mult(lightAmbient, materialAmbient);
-        diffuseProduct = mult(lightDiffuse, materialDiffuse);
-        specularProduct = mult(lightSpecular, materialSpecular);
-
-        gl.uniform4fv(gl.getUniformLocation(prog, "ambientProduct"), flatten(ambientProduct));
-        gl.uniform4fv(gl.getUniformLocation(prog, "diffuseProduct"), flatten(diffuseProduct));
-        gl.uniform4fv(gl.getUniformLocation(prog, "specularProduct"), flatten(specularProduct));
-        gl.uniform1f(gl.getUniformLocation(prog, "shininess"), materialShininess);
-
         gl.uniform4fv(gl.getUniformLocation(prog, "lightPosition"), flatten(lightPosition));
 
-        
+
         gl.uniformMatrix4fv(ProjectionLoc, false, flatten(projection));  // send projection matrix to the shader program
 
-	    // initialize the model
+        // initialize the model
         initModel();
 
-        // build the spacecraft
+        // build stuff
         spacecraft.build();
         planets.build();
-
-        // create the environment
-        envbox = createModelbox(cube(1000.0));
     }
     catch (e) {
         console.log(e);
@@ -328,10 +292,44 @@ window.onload = function init() {
         return;
     }
 
-    //
     // Initialize a texture
-    //
     initTexture();
 
     render();
 };
+
+var PROGRAM = {PROG: 0, PROG_BOX:1, PROG_MAP:2};
+
+// switch program dynamically
+// example for use:
+//      switchProgram(PROGRAM.PROG);
+function switchProgram(code) {
+    switch(code) {
+        case PROGRAM.PROG:
+            gl.useProgram(prog);
+
+            gl.enableVertexAttribArray(CoordsLoc);
+            gl.enableVertexAttribArray(NormalLoc);
+            gl.enableVertexAttribArray(TexCoordLoc);
+            alphaLoc = gl.getUniformLocation(prog, "alpha");
+            break;
+
+        case PROGRAM.PROG_BOX:
+            gl.useProgram(progbox); // Select the shader program that is used for the environment box.
+
+            gl.enableVertexAttribArray(aCoordsbox);
+            gl.disableVertexAttribArray(aNormalbox);     // normals are not used for the box
+            gl.disableVertexAttribArray(aTexCoordbox);   // texture coordinates not used for the box
+            break;
+
+        case PROGRAM.PROG_MAP:
+            gl.useProgram(progmap);
+
+            gl.enableVertexAttribArray(aCoordsmap);
+            gl.enableVertexAttribArray(aNormalmap);
+            gl.disableVertexAttribArray(aTexCoordmap);  // texture coordinates not used (environmental mapping)
+            break;
+        default:
+            throw('unknown program');
+    }
+}

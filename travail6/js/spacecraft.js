@@ -11,7 +11,6 @@ var SPACECRAFT = {
     controlCover: 8,
     engine: 9,
     r2d2: 10,
-    test: 11
 };
 
 var spacecraft = new right_child_left_sibling(SPACECRAFT);
@@ -213,10 +212,7 @@ var component = {
                 component.control_center.attr.height));
 
             // skin
-            // setColor(19, 19, 14);
-            setAmbient(19, 19, 14);
-            setDiffuse(0,0,0);
-            setSpecular(0,0,0);
+            setColor(19, 19, 14);
             setTexture();
 
             hemisphere.render();
@@ -271,12 +267,6 @@ var component = {
 
             cleanColor();
         }
-    },
-
-    test: function () {
-        normalMatrix = extractNormalMatrix(modelview);  // faire avant scale
-        modelview = mult(modelview, scale4(6, 6, 6));
-        hemicone.render(1, 3, 25, false);
     }
 
 };
@@ -333,10 +323,6 @@ spacecraft.initNodes = function(figure, id) {
 
         case SPACECRAFT.r2d2:
             figure[SPACECRAFT.r2d2] = createNode(m, component.robot.render, null, null);
-            break;
-
-        case SPACECRAFT.test:
-            figure[SPACECRAFT.test] = createNode(m, component.test, null, null);
             break;
     }
 };
