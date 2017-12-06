@@ -4,6 +4,8 @@
 var sphere, tetrahedron, squareTetra, hemicone, cylinder, hemisphere,
     m_cube, m_ring, pentagonprism, trapeziumprism, triangleprism, cylinder_non_top_insdide, cylinder_non_top_outside;
 
+var reflect;
+
 function initModel() {
     sphere = createModel(uvSphere(1, 32, 32));
     tetrahedron = createModel(uvTetrahedron(10));
@@ -29,13 +31,14 @@ function initModel() {
 
     triangleprism = createModel(uvCylinder(1,1, 3, false, false ));
 
+    reflect = createModelmap(cube(1));
 }
 
 function createModel(modelData) {
     var model = {};
     model.coordsBuffer = gl.createBuffer();
     model.normalBuffer = gl.createBuffer();
-    // model.textureBuffer = gl.createBuffer();
+    model.textureBuffer = gl.createBuffer();
     model.indexBuffer = gl.createBuffer();
     model.count = modelData.indices.length;
 
@@ -43,8 +46,8 @@ function createModel(modelData) {
     gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexPositions, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexNormals, gl.STATIC_DRAW);
-    // gl.bindBuffer(gl.ARRAY_BUFFER, model.textureBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexTextureCoords, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.textureBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexTextureCoords, gl.STATIC_DRAW);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, modelData.indices, gl.STATIC_DRAW);
@@ -54,19 +57,72 @@ function createModel(modelData) {
         gl.vertexAttribPointer(CoordsLoc, 3, gl.FLOAT, false, 0, 0);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
         gl.vertexAttribPointer(NormalLoc, 3, gl.FLOAT, false, 0, 0);
-        // gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-        // gl.vertexAttribPointer(TexCoordLoc, 2, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
+        gl.vertexAttribPointer(TexCoordLoc, 2, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
         gl.uniformMatrix4fv(ModelviewLoc, false, flatten(modelview));           //--- load flattened modelview matrix
         gl.uniformMatrix3fv(NormalMatrixLoc, false, flatten(normalMatrix));     //--- load flattened normal matrix
-
-        setTexture(TEXTURE.R2D2HEAD);
-        setMapTexture(BOX_TEXTURE.SKYBOX);
-        gl.disableVertexAttribArray(TexCoordLoc);
+	    
         gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
     };
 
     return model;
+}
+
+function createModelmap(modelData) {
+	var model = {};
+	model.coordsBuffer = gl.createBuffer();
+	model.normalBuffer = gl.createBuffer();
+	model.indexBuffer = gl.createBuffer();
+	model.count = modelData.indices.length;
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.coordsBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexPositions, gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexNormals, gl.STATIC_DRAW);
+	
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, modelData.indices, gl.STATIC_DRAW);
+	
+	model.render = function () {
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.coordsBuffer);
+		gl.vertexAttribPointer(aCoordsmap, 3, gl.FLOAT, false, 0, 0);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+		gl.vertexAttribPointer(aNormalmap, 3, gl.FLOAT, false, 0, 0);
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+		
+		gl.uniformMatrix4fv(uModelviewmap, false, flatten(modelview));    //--- load flattened modelview matrix
+		gl.uniformMatrix3fv(uNormalMatrixmap, false, flatten(normalMatrix));  //--- load flattened normal matrix
+		
+		gl.uniformMatrix3fv(uMinvmap, false, flatten(Minv));  // send matrix inverse of modelview in order to rotate the skybox
+		
+		gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
+	};
+	return model;
+}
+
+// For creating the environment box.
+function createModelbox(modelData) {
+	var model = {};
+	model.coordsBuffer = gl.createBuffer();
+	model.indexBuffer = gl.createBuffer();
+	model.count = modelData.indices.length;
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.coordsBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexPositions, gl.STATIC_DRAW);
+	console.log(modelData.vertexPositions.length);
+	console.log(modelData.indices.length);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, modelData.indices, gl.STATIC_DRAW);
+	model.render = function () {
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.coordsBuffer);
+		gl.vertexAttribPointer(aCoordsbox, 3, gl.FLOAT, false, 0, 0);
+		gl.uniformMatrix4fv(uModelviewbox, false, flatten(modelview));
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+		
+		gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
+	};
+	return model;
 }

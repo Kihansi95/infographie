@@ -115,18 +115,31 @@ var planets_components = {
     },
 
     reflect_cube: function() {
-
-      flattenedmodelview = rotator.getViewMatrix();
-      modelview = unflatten(flattenedmodelview);
-      normalMatrix = extractNormalMatrix(modelview);
-
-      // angle[PLANETS.reflectcube] += 1.5;
-      // modelview = mult(modelview, rotate(getAngle(PLANETS.reflectcube), 0, 1, 0));
-
-      modelview = mult(modelview, scale4(10, 10, 10));
-
-      sethasTexture(2);
-      m_cube.render();
+	    
+    	gl.useProgram(progmap);
+    	
+		flattenedmodelview = rotator.getViewMatrix();
+		modelview = unflatten(flattenedmodelview);
+		
+	
+	    // Compute the inverse of the modelview matrix
+	    Minv = matrixinvert(modelview);
+		
+		angle[PLANETS.reflectcube] += 1.5;
+		modelview = mult(modelview, rotate(getAngle(PLANETS.reflectcube), 0, 1, 0));
+	
+	    normalMatrix = extractNormalMatrix(modelview);
+		
+		modelview = mult(modelview, scale4(10, 10, 10));
+	
+	    gl.enableVertexAttribArray(aCoordsmap);
+	    gl.enableVertexAttribArray(aNormalmap);
+	    gl.disableVertexAttribArray(aTexCoordmap);  // texture coordinates not used (environmental mapping)
+	
+	
+	    setMapTexture(BOX_TEXTURE.SKYBOX);
+	    reflect.render();
+	
     }
 }
 
@@ -151,7 +164,8 @@ planets.initNodes = function(figure, id) {
             break;
 
         case PLANETS.signature:
-    		    figure[PLANETS.signature] = createNode(m, planets_components.signature, PLANETS.reflectcube, null);
+    		    figure[PLANETS.signature] = createNode(m, planets_components.signature, null, null);
+    		    // figure[PLANETS.signature] = createNode(m, planets_components.signature, PLANETS.reflectcube, null);
     		    break;
 
         case PLANETS.reflectcube:

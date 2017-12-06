@@ -95,11 +95,9 @@
      varying vec2 fTexCoord;
 
      uniform sampler2D texture;
-     uniform int hasTexture;
+     uniform bool hasTexture;
 
      uniform float alpha;
-
-     uniform samplerCube skybox;
 
      varying vec3 fNormal;
 
@@ -122,25 +120,65 @@
           Color = ambient + diffuse + specular;
           Color.a = alpha;
 
-          if(hasTexture==0) {
+          if(hasTexture) {
               gl_FragColor = Color * texture2D( texture, fTexCoord );
           }
-          else if(hasTexture==1) {
-              gl_FragColor = Color;
-          }
           else {
-            // calcul reflection
-            vec3 V = fviewCoords;
-            vec3 R = -reflect(V, fN);
-
-            gl_FragColor = textureCube(skybox, R);
+              gl_FragColor = Color;
           }
 
 
      }
 </script>
 
+    <script type="x-shader/x-vertex" id="vshadermap">
+     uniform mat4 projection;
+     uniform mat4 modelview;
 
+     attribute vec3 vcoords;
+     attribute vec3 vnormal;
+     attribute vec2 vtexcoord;
+
+     varying vec3 fviewCoords;
+     varying vec3 fNormal;
+
+     void main() {
+        vec2 tmp = vtexcoord;
+       // inserted only to map texcoord in this shader (required
+       // since models uses texture coordinates even though we will
+       // not use them in environmental mapping)
+
+        vec4 eyeCoords = modelview * vec4(vcoords,1.0);
+        gl_Position = projection * eyeCoords;
+        fviewCoords = eyeCoords.xyz;
+        fNormal = vnormal;
+     }
+</script>
+
+    <script type="x-shader/x-fragment" id="fshadermap">
+     precision mediump float;
+
+     varying vec3 fNormal;
+     varying vec3 fviewCoords;
+
+     uniform samplerCube skybox;
+     uniform mat3 normalMatrix;
+     uniform mat3 minv;
+
+     void main() {
+          vec3 N = normalMatrix * fNormal;
+          vec3 V = -fviewCoords;
+          vec3 R = -reflect(V,N);
+                             // note the reflect() function
+                             // computes the equation below but
+                             // inverts the result (!!!)
+
+          // Transform by inverse of view transform, which was applied to the skybox
+          R = minv * R;
+
+          gl_FragColor = textureCube(skybox, R);
+     }
+</script>
 
     <script type="text/javascript" src="Common/simple-rotator.js"></script>
     <script type="text/javascript" src="Common/MV.js"></script>
